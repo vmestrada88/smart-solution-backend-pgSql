@@ -1,39 +1,52 @@
-const Client = require('../models/Client');
+const { Client, Contact, Job } = require('../models');
 
-// Create new client
+// Create new client (with contacts)
 const createClient = async (req, res) => {
+  const { companyName, address, city, state, zip, contacts } = req.body;
   try {
-    const { companyName, address, city, state, zip, contacts } = req.body;
-    
-    const newClient = new Client({
-      companyName,
-      address,
-      city,
-      state,
-      zip,
-      contacts: contacts || []
-    });
-
-    const savedClient = await newClient.save();
-    res.status(201).json(savedClient);
+    const client = await Client.create(
+      {
+        companyName,
+        address,
+        city,
+        state,
+        zip,
+        contacts: contacts || [],
+      },
+      {
+        include: [{ model: Contact, as: 'contacts' }],
+      }
+    );
+    res.status(201).json(client);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
+// Get all clients (with contacts and jobs)
 const getClients = async (req, res) => {
   try {
-    const clients = await Client.find();
+    const clients = await Client.findAll({
+      include: [
+        { model: Contact, as: 'contacts' },
+        { model: Job, as: 'jobs' },
+      ],
+    });
     res.status(200).json(clients);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-
+// Get client by ID (with contacts and jobs)
 const getClientById = async (req, res) => {
   try {
-    const client = await Client.findById(req.params.id);
+    const client = await Client.findByPk(req.params.id, {
+      include: [
+        { model: Contact, as: 'contacts' },
+        { model: Job, as: 'jobs' },
+      ],
+    });
     if (!client) {
       return res.status(404).json({ message: 'Client no found' });
     }
@@ -43,23 +56,32 @@ const getClientById = async (req, res) => {
   }
 };
 
-
+// Update client and contacts
 const updateClient = async (req, res) => {
   try {
     const { companyName, address, city, state, zip, contacts } = req.body;
-    const client = await Client.findById(req.params.id);
+    const client = await Client.findByPk(req.params.id, {
+      include: [{ model: Contact, as: 'contacts' }],
+    });
     if (!client) {
       return res.status(404).json({ message: 'Client no found' });
     }
-
-    client.companyName = companyName ?? client.companyName;
-    client.address = address ?? client.address;
-    client.city = city ?? client.city;
-    client.state = state ?? client.state;
-    client.zip = zip ?? client.zip;
-    client.contacts = contacts ?? client.contacts;
-
-    const updatedClient = await client.save();
+    await client.update({
+      companyName: companyName ?? client.companyName,
+      address: address ?? client.address,
+      city: city ?? client.city,
+      state: state ?? client.state,
+      zip: zip ?? client.zip,
+    });
+    // Si se envían contactos, actualizarlos (borrar y crear nuevos por simplicidad)
+    if (contacts) {
+      await Contact.destroy({ where: { clientId: client.id } });
+      const newContacts = contacts.map(c => ({ ...c, clientId: client.id }));
+      await Contact.bulkCreate(newContacts);
+    }
+    const updatedClient = await Client.findByPk(client.id, {
+      include: [{ model: Contact, as: 'contacts' }],
+    });
     res.status(200).json(updatedClient);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -70,25 +92,20 @@ const updateClient = async (req, res) => {
 const addJobToClient = async (req, res) => {
   try {
     const { date, description, equipmentInstalled, images, notes, invoiceId } = req.body;
-
-    const client = await Client.findById(req.params.id);
+    const client = await Client.findByPk(req.params.id);
     if (!client) {
-      return res.status(404).json({ message: 'Client no found'  });
+      return res.status(404).json({ message: 'Client no found' });
     }
-
-    const newJob = {
+    const job = await Job.create({
       date: date ? new Date(date) : new Date(),
       description,
       equipmentInstalled: equipmentInstalled || [],
       images: images || [],
       notes: notes || '',
       invoiceId: invoiceId || null,
-    };
-
-    client.jobs.push(newJob);
-    await client.save();
-
-    res.status(201).json(client);
+      clientId: client.id,
+    });
+    res.status(201).json(job);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

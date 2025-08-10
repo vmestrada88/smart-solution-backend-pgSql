@@ -4,6 +4,17 @@ const Product = require('../models/Product');
 const multer = require('multer');
 const path = require('path');
 
+// Crear producto solo con JSON (sin imágenes nuevas)
+router.post('/', async (req, res) => {
+  try {
+    const newProduct = await Product.create(req.body);
+    res.status(201).json(newProduct);
+  } catch (error) {
+    console.error('Error creating product:', error.message);
+    res.status(500).json({ error: 'Failed to create product' });
+  }
+});
+
 // Configurar multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -27,7 +38,7 @@ router.post('/create', upload.array('images', 5), async (req, res) => {
 
     const imageUrls = req.files.map(file => `/uploads/${file.filename}`);
 
-    const newProduct = new Product({
+    const newProduct = await Product.create({
       name,
       brand,
       model,
@@ -39,7 +50,6 @@ router.post('/create', upload.array('images', 5), async (req, res) => {
       imageUrls,
     });
 
-    await newProduct.save();
     res.status(201).json(newProduct);
   } catch (error) {
     console.error('Error creating product:', error.message);
@@ -49,7 +59,7 @@ router.post('/create', upload.array('images', 5), async (req, res) => {
 
 router.get('/', async (req, res) => {
   try {
-    const products = await Product.find(); // <- this now works
+    const products = await Product.findAll();
     res.json(products);
   } catch (error) {
     res.status(500).json({ error: 'Error fetching products' });
