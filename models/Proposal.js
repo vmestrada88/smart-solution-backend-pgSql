@@ -1,78 +1,104 @@
-const mongoose = require('mongoose');
+const { DataTypes, Model } = require('sequelize');
+const sequelize = require('./db');
+const Client = require('./Client');
+const User = require('./User');
+const Product = require('./Product');
 
-const ProposalSchema = new mongoose.Schema({
+class Proposal extends Model {}
+
+Proposal.init({
   proposalNumber: {
-    type: String,
-    required: true,
-    unique: true
+    type: DataTypes.STRING,
+    unique: true,
+    allowNull: false,
   },
-  client: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Client'
+  clientInfoName: {
+    type: DataTypes.STRING,
+    allowNull: false,
   },
-  clientInfo: {
-    name: { type: String, required: true },
-    email: String,
-    phone: String,
-    address: String
-  },
-  items: [{
-    productId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Product'
-    },
-    name: { type: String, required: true },
-    description: String,
-    quantity: { type: Number, required: true, min: 1 },
-    unitPrice: { type: Number, required: true, min: 0 },
-    laborCost: { type: Number, default: 0, min: 0 },
-    subtotal: { type: Number, required: true, min: 0 }
-  }],
+  clientInfoEmail: DataTypes.STRING,
+  clientInfoPhone: DataTypes.STRING,
+  clientInfoAddress: DataTypes.STRING,
   subtotal: {
-    type: Number,
-    required: true,
-    min: 0
+    type: DataTypes.FLOAT,
+    allowNull: false,
+    defaultValue: 0,
   },
   tax: {
-    type: Number,
-    default: 0,
-    min: 0
+    type: DataTypes.FLOAT,
+    defaultValue: 0,
   },
   total: {
-    type: Number,
-    required: true,
-    min: 0
+    type: DataTypes.FLOAT,
+    allowNull: false,
+    defaultValue: 0,
   },
   status: {
-    type: String,
-    enum: ['creado', 'enviado', 'archivado', 'cancelado'],
-    default: 'creado'
+    type: DataTypes.ENUM('creado', 'enviado', 'archivado', 'cancelado'),
+    defaultValue: 'creado',
   },
-  validUntil: Date,
-  notes: String,
-  createdBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  }
+  validUntil: DataTypes.DATE,
+  notes: DataTypes.STRING,
 }, {
-  timestamps: true
+  sequelize,
+  modelName: 'Proposal',
+  timestamps: true,
 });
 
-// Auto-generar número de propuesta
-ProposalSchema.pre('save', async function(next) {
-  if (!this.proposalNumber) {
-    const count = await mongoose.model('Proposal').countDocuments();
-    this.proposalNumber = `PROP-${String(count + 1).padStart(6, '0')}`;
+class ProposalItem extends Model {}
+
+ProposalItem.init({
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  description: DataTypes.STRING,
+  quantity: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 1,
+  },
+  unitPrice: {
+    type: DataTypes.FLOAT,
+    allowNull: false,
+    defaultValue: 0,
+  },
+  laborCost: {
+    type: DataTypes.FLOAT,
+    defaultValue: 0,
+  },
+  subtotal: {
+    type: DataTypes.FLOAT,
+    allowNull: false,
+    defaultValue: 0,
+  },
+}, {
+  sequelize,
+  modelName: 'ProposalItem',
+  timestamps: false,
+});
+
+Proposal.belongsTo(Client, { foreignKey: 'clientId', as: 'client' });
+Client.hasMany(Proposal, { foreignKey: 'clientId', as: 'proposals' });
+Proposal.belongsTo(User, { foreignKey: 'createdBy', as: 'creator' });
+User.hasMany(Proposal, { foreignKey: 'createdBy', as: 'proposals' });
+Proposal.hasMany(ProposalItem, { foreignKey: 'proposalId', as: 'items', onDelete: 'CASCADE' });
+ProposalItem.belongsTo(Proposal, { foreignKey: 'proposalId', as: 'proposal' });
+ProposalItem.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
+Product.hasMany(ProposalItem, { foreignKey: 'productId', as: 'proposalItems' });
+
+// Hook para autogenerar número de propuesta y calcular totales
+Proposal.beforeCreate = async (proposal, options) => {
+  if (!proposal.proposalNumber) {
+    const count = await Proposal.count();
+    proposal.proposalNumber = `PROP-${String(count + 1).padStart(6, '0')}`;
   }
-  next();
-});
+};
+Proposal.beforeSave = (proposal, options) => {
+  if (proposal.items && Array.isArray(proposal.items)) {
+    proposal.subtotal = proposal.items.reduce((sum, item) => sum + (item.subtotal || 0), 0);
+    proposal.total = proposal.subtotal + (proposal.tax || 0);
+  }
+};
 
-// Calcular totales automáticamente
-ProposalSchema.pre('save', function(next) {
-  this.subtotal = this.items.reduce((sum, item) => sum + item.subtotal, 0);
-  this.total = this.subtotal + this.tax;
-  next();
-});
-
-module.exports = mongoose.model('Proposal', ProposalSchema);
+module.exports = { Proposal, ProposalItem };
