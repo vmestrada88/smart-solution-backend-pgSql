@@ -1,0 +1,15 @@
+build:
+  commands:
+    - corepack enable
+    - yarn install --frozen-lockfile
+run:
+  command: node server.js
+env:
+  variables:
+    NODE_ENV: production
+    PORT: 8000
+    FRONTEND_URL: https://<TU_FRONTEND>.amplifyapp.com
+    # Remueve las de DB_* si usas DATABASE_URL
+  secrets:
+    - name: JWT_SECRET
+    - name: DATABASE_URL
