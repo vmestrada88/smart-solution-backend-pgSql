@@ -4,7 +4,6 @@ runtime: nodejs20
 build:
   commands:
     - corepack enable
-    - yarn set version stable
     - yarn install --frozen-lockfile
 
 run:
@@ -26,11 +25,9 @@ env:
     value: "8000"
   - name: FRONTEND_URL
     value: https://master.d3afcsxlnuerx1.amplifyapp.com
-  # - name: FRONTEND_URLS
-  #   value: https://otro1.com,https://otro2.com
 
 secrets:
   - name: DATABASE_URL
-    value: arn:aws:secretsmanager:us-east-1:TU_ACCOUNT_ID:secret:smartsolution-DATABASE_URL-XXXXXXXX
+    value: postgres://postgres:admin123@smartsolutiondb.ccxygac26ujg.us-east-1.rds.amazonaws.com:5432/smartsolutiondb
   - name: JWT_SECRET
-    value: arn:aws:secretsmanager:us-east-1:TU_ACCOUNT_ID:secret:smartsolution-JWT_SECRET-YYYYYYYY
+    value: oM7H$2rFqZ!p9vT1wC#4gL8xN@5eQ6uD
