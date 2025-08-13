@@ -1,15 +1,29 @@
+version: 1.0
+runtime: nodejs20
+
 build:
   commands:
     - corepack enable
     - yarn install --frozen-lockfile
+
 run:
   command: node server.js
+  network:
+    port: 8000
+    protocol: HTTP
+
+healthCheck:
+  path: /api/health
+  interval: 10
+  timeout: 5
+  healthyThreshold: 1
+  unhealthyThreshold: 3
+
 env:
   variables:
     NODE_ENV: production
     PORT: 8000
-    FRONTEND_URL: https://<TU_FRONTEND>.amplifyapp.com
-    # Remueve las de DB_* si usas DATABASE_URL
+    FRONTEND_URL: https://master.d3afcsxlnuerx1.amplifyapp.com
   secrets:
     - name: JWT_SECRET
     - name: DATABASE_URL
