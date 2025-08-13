@@ -4,13 +4,13 @@ runtime: nodejs20
 build:
   commands:
     - corepack enable
+    - yarn set version stable
     - yarn install --frozen-lockfile
 
 run:
   command: node server.js
   network:
     port: 8000
-    protocol: HTTP
 
 healthCheck:
   path: /api/health
@@ -20,10 +20,17 @@ healthCheck:
   unhealthyThreshold: 3
 
 env:
-  variables:
-    NODE_ENV: production
-    PORT: 8000
-    FRONTEND_URL: https://master.d3afcsxlnuerx1.amplifyapp.com
-  secrets:
-    - name: JWT_SECRET
-    - name: DATABASE_URL
+  - name: NODE_ENV
+    value: production
+  - name: PORT
+    value: "8000"
+  - name: FRONTEND_URL
+    value: https://master.d3afcsxlnuerx1.amplifyapp.com
+  # - name: FRONTEND_URLS
+  #   value: https://otro1.com,https://otro2.com
+
+secrets:
+  - name: DATABASE_URL
+    value: arn:aws:secretsmanager:us-east-1:TU_ACCOUNT_ID:secret:smartsolution-DATABASE_URL-XXXXXXXX
+  - name: JWT_SECRET
+    value: arn:aws:secretsmanager:us-east-1:TU_ACCOUNT_ID:secret:smartsolution-JWT_SECRET-YYYYYYYY
