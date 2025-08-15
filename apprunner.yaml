@@ -23,11 +23,7 @@ env:
     value: "8000"
   - name: FRONTEND_URL
     value: https://master.d3afcsxlnuerx1.amplifyapp.com
-
-secrets:
   - name: DATABASE_URL
-    value: arn:aws:secretsmanager:us-east-1:728399044804:secret:smartsolution-DATABASE_URL-REPLACE_WITH_SUFFIX
-    key: DATABASE_URL
+    value: "postgres://postgres:admin123@smartsolution.c1mcs6kcoja3.us-east-2.rds.amazonaws.com:5432/postgres"
   - name: JWT_SECRET
-    value: arn:aws:secretsmanager:us-east-1:728399044804:secret:smartsolution-JWT_SECRET-REPLACE_WITH_SUFFIX
-    key: JWT_SECRET
+    value: "oM7H$2rFqZ!p9vT1wC#4gL8xN@5eQ6uD"
