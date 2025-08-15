@@ -2,7 +2,9 @@ version: 1.0
 runtime: nodejs16
 
 build:
-  command: corepack enable && yarn install --frozen-lockfile
+  commands:
+    - corepack enable
+    - yarn install --frozen-lockfile
 
 run:
   command: node server.js
