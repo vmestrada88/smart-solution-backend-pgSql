@@ -31,8 +31,19 @@ app.use('/api', require('./routes/auth'));
 app.use('/api/clients', require('./routes/clientsRoutes'));
 app.use('/api/invoices', require('./routes/invoiceRoutes'));
 
-// Health endpoint (checks DB connection)
-app.get('/api/health', async (req, res) => {
+// Health endpoint (simple version - no DB dependency)
+app.get('/api/health', (req, res) => {
+  return res.json({ 
+    ok: true, 
+    status: 'running',
+    uptime: process.uptime(), 
+    time: new Date().toISOString(),
+    port: PORT 
+  });
+});
+
+// Health endpoint con DB (separado para debugging)
+app.get('/api/health/db', async (req, res) => {
   const start = Date.now();
   try {
     await sequelize.authenticate();
