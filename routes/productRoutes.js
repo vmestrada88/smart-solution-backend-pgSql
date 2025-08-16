@@ -58,11 +58,20 @@ router.post('/create', upload.array('images', 5), async (req, res) => {
 });
 
 router.get('/', async (req, res) => {
+  console.log('Products endpoint called');
   try {
-    const products = await Product.findAll();
+    // Agregar timeout a la consulta
+    const products = await Promise.race([
+      Product.findAll(),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Query timeout')), 10000)
+      )
+    ]);
+    console.log(`Found ${products.length} products`);
     res.json(products);
   } catch (error) {
-    res.status(500).json({ error: 'Error fetching products' });
+    console.error('Error fetching products:', error);
+    res.status(500).json({ error: 'Error fetching products', details: error.message });
   }
 });
 
