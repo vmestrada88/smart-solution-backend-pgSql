@@ -1,11 +1,20 @@
+const dotenv = require('dotenv');
+
+// Detectar modo remoto
+const isRemote = process.argv.includes('--remote') || process.env.REMOTE === 'true';
+const envFile = isRemote ? '.env.production' : '.env';
+
+dotenv.config({ path: envFile });
+console.log(`🔧 Mode: ${isRemote ? 'REMOTE (RDS)' : 'LOCAL'}`);
+console.log(`🔧 Using config: ${envFile}`);
+console.log(`🏠 DB Host: ${process.env.DB_HOST}`);
+console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
+
 const express = require('express');
 const cors = require('cors');
-const dotenv = require('dotenv');
 const path = require('path');
 const productRoutes = require('./routes/productRoutes');
 const sequelize = require('./models/db');
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;

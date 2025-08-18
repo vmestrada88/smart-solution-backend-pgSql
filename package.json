@@ -6,6 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
+    "dev:remote": "nodemon server.js --remote",
+    "start:remote": "node server.js --remote",
     "sync": "node syncModels.js"
   },
   "dependencies": {

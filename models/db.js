@@ -3,11 +3,11 @@ const { Sequelize } = require('sequelize');
 const {
   DATABASE_URL,
   DB_NAME = 'smartsolution',
-  DB_USER = 'postgres',
+  DB_USER = 'postgres', 
   DB_PASSWORD = 'admin123',
   DB_HOST = 'localhost',
   DB_PORT = '5432',
-  NODE_ENV = 'production',
+  NODE_ENV = 'development', // Cambiar default a development
 } = process.env;
 
 const common = {
