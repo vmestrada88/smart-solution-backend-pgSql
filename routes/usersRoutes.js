@@ -1,26 +1,42 @@
+/**
+ * @file Defines routes for user-related operations.
+ * @module routes/usersRoutes
+ */
+
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User'); // Adjust the path if necessary
+const userController = require('../controllers/userController');
+const adminAuth = require('../middleware/adminAuth');
+const auth = require('../middleware/auth');
 
-// Crear usuario
-router.post('/', async (req, res) => {
-  try {
-    const { name, email, password, role } = req.body; // Change the fields according to your model
-    const newUser = await User.create({ name, email, password, role });
-    res.status(201).json(newUser);
-  } catch (error) {
-    res.status(500).json({ error: 'Error creating user' });
-    }
-  });
+/**
+ * Route to get all users.
+ * Requires admin authentication.
+ */
+router.get('/', adminAuth, userController.getAllUsers); // Get all users
 
-  // Get all users
-router.get('/', async (req, res) => {
-  try {
-    const users = await User.findAll(); // If you use Sequelize
-    res.json(users);
-  } catch (error) {
-    res.status(500).json({ error: 'Error fetching users' });
-  }
-});
+/**
+ * Route to create a new user.
+ * Requires admin authentication.
+ */
+router.post('/', adminAuth, userController.createUser); // Create a new user
 
-module.exports = router;
+/**
+ * Route to get a user by ID.
+ * Requires authentication.
+ */
+router.get('/:id', auth, userController.getUserById); // Get user by ID
+
+/**
+ * Route to update a user by ID.
+ * Requires admin authentication.
+ */
+router.put('/:id', adminAuth, userController.updateUser); // Update user by ID
+
+/**
+ * Route to delete a user by ID.
+ * Requires admin authentication.
+ */
+router.delete('/:id', adminAuth, userController.deleteUser); // Delete user by ID
+
+module.exports = router; // Export the router

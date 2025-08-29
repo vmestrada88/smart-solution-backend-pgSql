@@ -1,27 +1,42 @@
+/**
+ * @file Defines routes for invoice-related operations.
+ * @module routes/invoiceRoutes
+ */
+
 const express = require('express');
 const router = express.Router();
-const Invoice = require('../models/Invoice');
+const invoiceController = require('../controllers/invoiceController');
+const adminAuth = require('../middleware/adminAuth');
+const auth = require('../middleware/auth');
 
-// Create new invoice
-router.post('/', async (req, res) => {
-  try {
-    const invoice = new Invoice(req.body);
-    const savedInvoice = await invoice.save();
-    res.status(201).json(savedInvoice);
-  } catch (error) {
-    console.error('Error saving invoice:', error);
-    res.status(500).json({ message: 'Error saving invoice' });
-  }
-});
+/**
+ * Route to get all invoices.
+ * Requires authentication.
+ */
+router.get('/', auth, invoiceController.getAllInvoices); // Get all invoices
 
-// Get all invoices
-router.get('/', async (req, res) => {
-  try {
-    const invoices = await Invoice.find().populate('client');
-    res.json(invoices);
-  } catch (error) {
-    res.status(500).json({ message: 'Error getting invoices' });
-  }
-});
+/**
+ * Route to create a new invoice.
+ * Requires admin authentication.
+ */
+router.post('/', adminAuth, invoiceController.createInvoice); // Create a new invoice
 
-module.exports = router;
+/**
+ * Route to get an invoice by ID.
+ * Requires authentication.
+ */
+router.get('/:id', auth, invoiceController.getInvoiceById); // Get invoice by ID
+
+/**
+ * Route to update an invoice by ID.
+ * Requires admin authentication.
+ */
+router.put('/:id', adminAuth, invoiceController.updateInvoice); // Update invoice by ID
+
+/**
+ * Route to delete an invoice by ID.
+ * Requires admin authentication.
+ */
+router.delete('/:id', adminAuth, invoiceController.deleteInvoice); // Delete invoice by ID
+
+module.exports = router; // Export the router
