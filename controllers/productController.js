@@ -20,7 +20,7 @@ exports.createProduct = async (req, res) => {
 exports.getProducts = async (req, res) => {
   try {
     const page = Number(req.query.page || 1);
-    const limit = Math.min(Number(req.query.limit || 100), 500); // tope 500 por seguridad
+    const limit = Math.min(Number(req.query.limit || 100), 500); // limit 500 for safety
     const offset = (page - 1) * limit;
 
     const result = await withTimeout(
@@ -32,7 +32,7 @@ exports.getProducts = async (req, res) => {
       15000
     );
 
-    // Mantén compatibilidad: devolvemos solo el arreglo; metemos conteo en headers
+    // Maintain compatibility: return only the array; put count in headers
     res.set('X-Total-Count', String(result.count || 0));
     res.json(result.rows);
   } catch (err) {
@@ -78,7 +78,7 @@ exports.deleteProduct = async (req, res) => {
   }
 };
 
-// Health para diagnóstico sin mutar BD
+// Health endpoint for diagnostics without mutating the DB
 exports.getProductsHealth = async (_req, res) => {
   try {
     const start = Date.now();

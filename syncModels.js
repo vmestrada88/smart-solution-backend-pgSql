@@ -1,3 +1,9 @@
+/**
+ * Script para sincronizar el modelo Sequelize con la base de datos PostgreSQL.
+ * Crea las tablas y agrega datos de ejemplo.
+ * Ejecutar este script para inicializar la base de datos en desarrollo.
+ */
+
 const { sequelize } = require('./models');
 
 (async () => {

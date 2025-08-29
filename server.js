@@ -1,11 +1,19 @@
-const dotenv = require('dotenv');
+/**
+ * Main Express server file.
+ * Sets up middlewares, routes, and database connection.
+ * Starts the server on the specified port.
+ */
 
-// Detectar modo remoto
-const isRemote = process.argv.includes('--remote') || process.env.REMOTE === 'true';
-const envFile = isRemote ? '.env.production' : '.env';
+ /**
+  * Determines the environment file to use based on the current Node.js environment.
+  * If the environment is 'production', uses '.env.production'; otherwise, uses '.env'.
+  *
+  * @type {string}
+  */
+const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env';
+require('dotenv').config({ path: envFile });
 
-dotenv.config({ path: envFile });
-console.log(`🔧 Mode: ${isRemote ? 'REMOTE (RDS)' : 'LOCAL'}`);
+console.log(`🔧 Mode: ${process.env.NODE_ENV === 'production' ? 'REMOTE (RDS)' : 'LOCAL'}`);
 console.log(`🔧 Using config: ${envFile}`);
 console.log(`🏠 DB Host: ${process.env.DB_HOST}`);
 console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
@@ -18,11 +26,18 @@ const sequelize = require('./models/db');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-// Support single FRONTEND_URL or comma-separated FRONTEND_URLS
+
+/**
+ * Configures allowed origins for CORS based on environment variables.
+ * Supports both single and multiple frontend URLs.
+ */
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 const FRONTEND_URLS = process.env.FRONTEND_URLS ? process.env.FRONTEND_URLS.split(',').map(s => s.trim()) : [];
 const allowedOrigins = new Set([FRONTEND_URL, ...FRONTEND_URLS, 'http://localhost:5174', 'http://localhost:5173'].filter(Boolean));
 
+/**
+ * Sets up CORS middleware to restrict access to allowed origins.
+ */
 app.use(cors({
   origin: (origin, cb) => {
     // Allow non-browser requests (no origin) and any whitelisted origin
@@ -33,14 +48,20 @@ app.use(cors({
 }));
 app.use(express.json());
 
-
-
+/**
+ * Registers API routes for products, authentication, clients, invoices, and users.
+ */
 app.use('/api/products', productRoutes);
 app.use('/api', require('./routes/auth'));
 app.use('/api/clients', require('./routes/clientsRoutes'));
 app.use('/api/invoices', require('./routes/invoiceRoutes'));
+app.use('/api/users', require('./routes/usersRoutes'));
 
-// Health endpoint (simple version - no DB dependency)
+/**
+ * Health check endpoint (simple version - no DB dependency).
+ * @route GET /api/health
+ * @returns {Object} JSON with server status and uptime.
+ */
 app.get('/api/health', (req, res) => {
   return res.json({ 
     ok: true, 
@@ -51,7 +72,12 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Health endpoint con DB (separado para debugging)
+/**
+ * Health check endpoint with DB connection.
+ * Useful for debugging database connectivity.
+ * @route GET /api/health/db
+ * @returns {Object} JSON with DB status, uptime, latency, and timestamp.
+ */
 app.get('/api/health/db', async (req, res) => {
   const start = Date.now();
   try {
@@ -62,11 +88,17 @@ app.get('/api/health/db', async (req, res) => {
   }
 });
 
+/**
+ * Serves static files from the 'uploads' directory.
+ * Accessible via /uploads route.
+ */
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-
-
+/**
+ * Starts the Express server and logs allowed origins.
+ */
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
   console.log('Allowed origins:', Array.from(allowedOrigins).join(', '));
 });
+
