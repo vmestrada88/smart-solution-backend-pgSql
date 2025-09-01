@@ -10,7 +10,22 @@
   *
   * @type {string}
   */
-const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env';
+/**
+ * Maps environment names to their corresponding .env file paths.
+ *
+ * @type {Object.<string, string>}
+ * @property {string} development - Path to the development environment file.
+ * @property {string} production - Path to the production environment file.
+ * @property {string} test - Path to the test environment file.
+ * @property {string} staging - Path to the staging environment file.
+ */
+const envMap = {
+  development: '.env.development',
+  production: '.env.production',
+  test: '.env.test',
+  staging: '.env.staging'
+};
+const envFile = envMap[process.env.NODE_ENV] || '.env.development';
 require('dotenv').config({ path: envFile });
 
 console.log(`🔧 Mode: ${process.env.NODE_ENV === 'production' ? 'REMOTE (RDS)' : 'LOCAL'}`);
