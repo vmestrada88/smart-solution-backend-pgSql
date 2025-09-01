@@ -13,7 +13,7 @@ const auth = require('../middleware/auth');
  * Route to get all products.
  * Requires authentication.
  */
-router.get('/', auth, productController.getAllProducts); // Get all products
+router.get('/', auth, productController.getProducts); // Get all products
 
 /**
  * Route to create a new product.

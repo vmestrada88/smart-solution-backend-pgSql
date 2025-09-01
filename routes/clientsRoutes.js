@@ -13,7 +13,7 @@ const auth = require('../middleware/auth');
  * Route to get all clients.
  * Requires authentication.
  */
-router.get('/', auth, clientController.getAllClients); // Get all clients
+router.get('/', auth, clientController.getClients); // Get all clients
 
 /**
  * Route to create a new client.
@@ -37,6 +37,6 @@ router.put('/:id', adminAuth, clientController.updateClient); // Update client b
  * Route to delete a client by ID.
  * Requires admin authentication.
  */
-router.delete('/:id', adminAuth, clientController.deleteClient); // Delete client by ID
+// router.delete('/:id', adminAuth, clientController.deleteClient); // Delete client by ID
 
 module.exports = router; // Export the router
