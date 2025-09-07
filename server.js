@@ -123,8 +123,12 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 /**
  * Starts the Express server and logs allowed origins.
  */
-app.listen(PORT, () => {
-  console.log(`Server listening on ${PORT}`);
-  console.log('Allowed origins:', Array.from(allowedOrigins).join(', '));
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Server listening on ${PORT}`);
+    console.log('Allowed origins:', Array.from(allowedOrigins).join(', '));
+  });
+}
+
+module.exports = app; // Exporta la aplicación para las pruebas
 
