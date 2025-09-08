@@ -39,4 +39,10 @@ router.put('/:id', adminAuth, clientController.updateClient); // Update client b
  */
 // router.delete('/:id', adminAuth, clientController.deleteClient); // Delete client by ID
 
+/**
+ * Route to add a job to a client.
+ * Requires admin authentication.
+ */
+router.post('/:id/jobs', adminAuth, clientController.addJobToClient); // Add job to client
+
 module.exports = router; // Export the router
