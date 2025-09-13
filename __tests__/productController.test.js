@@ -1,36 +1,92 @@
 const request = require('supertest');
-const app = require('../server'); // Asegúrate de que tu app esté exportada desde server.js
-const Product = require('../models/Product'); // Mockear el modelo Product
+const app = require('../server'); // Make sure your app is exported from server.js
+const Product = require('../models/Product'); // Mock the Product model
 
-// Mockear el modelo Product
+// Mock the Product model
 jest.mock('../models/Product');
 
-// Mockear los middlewares de autenticación
-jest.mock('../middleware/auth', () => (req, res, next) => next()); // Simula autenticación exitosa
-jest.mock('../middleware/adminAuth', () => (req, res, next) => next()); // Simula autenticación de admin exitosa
+// Mock authentication middlewares
+jest.mock('../middleware/auth', () => (req, res, next) => next()); // Simulate successful authentication
+jest.mock('../middleware/adminAuth', () => (req, res, next) => next()); // Simulate successful admin authentication
 
 describe('Product Controller', () => {
   beforeEach(() => {
-    jest.clearAllMocks(); // Limpia los mocks antes de cada prueba
+    jest.clearAllMocks(); // Clear mocks before each test
   });
 
   it('should create a product', async () => {
-    const mockProduct = { id: 1, name: 'Test Product', price: 100 };
+    const mockProduct = {
+      id: 1,
+      name: 'Test Product',
+      brand: 'Test Brand',
+      model: 'Test Model',
+      description: 'Test Description',
+      quantity: 10,
+      priceSell: 100,
+      priceBuy: 80,
+      category: 'Test Category',
+      imageUrls: [],
+      // Change to string to match JSON serialization
+    };
     Product.create.mockResolvedValue(mockProduct);
 
     const res = await request(app)
       .post('/api/products')
-      .send({ name: 'Test Product', price: 100 });
+      .send({
+        name: 'Test Product',
+        brand: 'Test Brand',
+        model: 'Test Model',
+        quantity: 10,
+        priceSell: 100,
+        priceBuy: 80,
+      });
 
     expect(res.statusCode).toBe(201);
     expect(res.body).toEqual(mockProduct);
-    expect(Product.create).toHaveBeenCalledWith({ name: 'Test Product', price: 100 });
+    expect(Product.create).toHaveBeenCalledWith({
+      name: 'Test Product',
+      brand: 'Test Brand',
+      model: 'Test Model',
+      quantity: 10,
+      priceSell: 100,
+      priceBuy: 80,
+    });
   });
 
   it('should get all products', async () => {
+    /**
+     * An array of mock product objects used for testing purposes.
+     * Each product contains all fields from the Product model.
+     *
+     * @type {Array<{id: number, name: string, brand: string, model: string, description: string, quantity: number, priceSell: number, priceBuy: number, category: string, imageUrls: string[], createdAt: Date}>}
+     */
     const mockProducts = [
-      { id: 1, name: 'Product 1', price: 100 },
-      { id: 2, name: 'Product 2', price: 200 },
+      {
+        id: 1,
+        name: 'Product 1',
+        brand: 'Brand 1',
+        model: 'Model 1',
+        description: 'Description 1',
+        quantity: 10,
+        priceSell: 100,
+        priceBuy: 80,
+        category: 'Category 1',
+        imageUrls: [],
+        createdAt: '2025-09-13T10:28:19.874Z',
+      },
+      {
+        id: 2,
+        name: 'Product 2',
+        brand: 'Brand 2',
+        model: 'Model 2',
+        description: 'Description 2',
+        quantity: 20,
+        priceSell: 200,
+        priceBuy: 160,
+        category: 'Category 2',
+        imageUrls: [],
+        createdAt: '2025-09-13T10:28:19.874Z',
+      },
     ];
     Product.findAndCountAll.mockResolvedValue({ rows: mockProducts, count: 2 });
 
@@ -46,7 +102,19 @@ describe('Product Controller', () => {
   });
 
   it('should get a product by ID', async () => {
-    const mockProduct = { id: 1, name: 'Test Product', price: 100 };
+    const mockProduct = {
+      id: 1,
+      name: 'Test Product',
+      brand: 'Test Brand',
+      model: 'Test Model',
+      description: 'Test Description',
+      quantity: 10,
+      priceSell: 100,
+      priceBuy: 80,
+      category: 'Test Category',
+      imageUrls: [],
+      // Fixed value for consistency in tests
+    };
     Product.findByPk.mockResolvedValue(mockProduct);
 
     const res = await request(app).get('/api/products/1');
@@ -67,18 +135,30 @@ describe('Product Controller', () => {
   });
 
   it('should update a product', async () => {
-    const mockUpdatedProduct = { id: 1, name: 'Updated Product', price: 150 };
+    const mockUpdatedProduct = {
+      id: 1,
+      name: 'Updated Product',
+      brand: 'Test Brand',
+      model: 'Test Model',
+      description: 'Test Description',
+      quantity: 10,
+      priceSell: 150,
+      priceBuy: 80,
+      category: 'Test Category',
+      imageUrls: [],
+      createdAt: '2025-09-13T10:28:19.874Z', // Valor fijo para consistencia en pruebas
+    };
     Product.update.mockResolvedValue([1]);
     Product.findByPk.mockResolvedValue(mockUpdatedProduct);
 
     const res = await request(app)
       .put('/api/products/1')
-      .send({ name: 'Updated Product', price: 150 });
+      .send({ name: 'Updated Product', priceSell: 150 });
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual(mockUpdatedProduct);
     expect(Product.update).toHaveBeenCalledWith(
-      { name: 'Updated Product', price: 150 },
+      { name: 'Updated Product', priceSell: 150 },
       { where: { id: '1' } }
     );
     expect(Product.findByPk).toHaveBeenCalledWith('1');
@@ -89,12 +169,12 @@ describe('Product Controller', () => {
 
     const res = await request(app)
       .put('/api/products/999')
-      .send({ name: 'Nonexistent Product', price: 150 });
+      .send({ name: 'Nonexistent Product', priceSell: 150 });
 
     expect(res.statusCode).toBe(404);
     expect(res.body).toEqual({ error: 'Product not found' });
     expect(Product.update).toHaveBeenCalledWith(
-      { name: 'Nonexistent Product', price: 150 },
+      { name: 'Nonexistent Product', priceSell: 150 },
       { where: { id: '999' } }
     );
   });
