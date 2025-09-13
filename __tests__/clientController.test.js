@@ -5,29 +5,6 @@ const { Client, Contact, Job } = require('../models'); // Mock the models
 
 // Mock the models
 jest.mock('../models', () => ({
-    Client: {
-        create: jest.fn(),
-        findAll: jest.fn(),
-        findByPk: jest.fn(),
-        update: jest.fn(),
-    },
-    Contact: {
-        destroy: jest.fn(),
-        bulkCreate: jest.fn(),
-    },
-    Job: {
-        create: jest.fn(),
-    },
-}));
-
-// Mock authentication middlewares
-jest.mock('../middleware/auth', () => (req, res, next) => next()); // Simulate successful authentication
-jest.mock('../middleware/adminAuth', () => (req, res, next) => next()); // Simulate successful admin authentication
-// const app = require('../server'); // Make sure your app is exported from server.js
-// const { Client, Contact, Job } = require('../models'); // Mock the models
-
-// Mockear los modelos
-jest.mock('../models', () => ({
   Client: {
     create: jest.fn(),
     findAll: jest.fn(),
@@ -53,7 +30,16 @@ describe('Client Controller', () => {
     });
 
   it('should create a client with contacts', async () => {
-    const mockClient = { id: 1, companyName: 'Test Company', contacts: [] };
+    const mockClient = { 
+      id: 1, 
+      companyName: 'Test Company', 
+      address: '123 Main St', 
+      city: null, 
+      state: null, 
+      zip: null, 
+      createdAt: '2025-09-13T10:28:19.874Z', // Agrega para coincidir con el modelo
+      contacts: [] 
+    };
     Client.create.mockResolvedValue(mockClient);
 
     const res = await request(app)
@@ -88,7 +74,17 @@ describe('Client Controller', () => {
   });
 
   it('should get a client by ID', async () => {
-    const mockClient = { id: 1, companyName: 'Test Client', contacts: [], jobs: [] };
+    const mockClient = { 
+      id: 1, 
+      companyName: 'Test Client', 
+      address: null, 
+      city: null, 
+      state: null, 
+      zip: null, 
+      createdAt: '2025-09-13T10:28:19.874Z', // Agrega
+      contacts: [], 
+      jobs: [] 
+    };
     Client.findByPk.mockResolvedValue(mockClient);
 
     const res = await request(app).get('/api/clients/1');
@@ -119,9 +115,31 @@ describe('Client Controller', () => {
   });
 
   it('should update a client', async () => {
-    const mockClient = { id: 1, companyName: 'Old Name', update: jest.fn() };
-    const mockUpdatedClient = { id: 1, companyName: 'New Name', contacts: [] };
-    Client.findByPk.mockResolvedValueOnce(mockClient).mockResolvedValueOnce(mockUpdatedClient);
+    const mockClient = {
+      id: 1,
+      companyName: 'Client 1',
+      address: null,
+      city: null,
+      state: null,
+      zip: null,
+      createdAt: '2025-09-13T10:28:19.874Z',
+      contacts: [], // Asegura que esté presente
+      update: jest.fn().mockImplementation(async function(data) {
+        Object.assign(this, data); // Modifica la instancia mockeada
+        return this;
+      }),
+    };
+    const mockUpdatedClient = { 
+      id: 1, 
+      companyName: 'New Name', 
+      address: null, 
+      city: null, 
+      state: null, 
+      zip: null, 
+      createdAt: '2025-09-13T10:28:19.874Z',
+      contacts: [] 
+    };
+    Client.findByPk.mockResolvedValue(mockClient);
 
     const res = await request(app)
       .put('/api/clients/1')
@@ -131,10 +149,10 @@ describe('Client Controller', () => {
     expect(res.body).toEqual(mockUpdatedClient);
     expect(mockClient.update).toHaveBeenCalledWith({
       companyName: 'New Name',
-      address: undefined,
-      city: undefined,
-      state: undefined,
-      zip: undefined,
+      address: null, // Cambia a null para coincidir con lo que envía el controlador
+      city: null,
+      state: null,
+      zip: null,
     });
   });
 
