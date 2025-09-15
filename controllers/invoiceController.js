@@ -1,4 +1,4 @@
-// controllers/invoiceController.js
+
 exports.getAllInvoices = (req, res) => {
   res.json({ message: 'getAllInvoices works!' });
 };

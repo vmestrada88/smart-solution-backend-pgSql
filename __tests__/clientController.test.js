@@ -201,4 +201,5 @@ describe('Client Controller', () => {
     expect(res.statusCode).toBe(404);
     expect(res.body).toEqual({ message: 'Client no found' });
   });
+  
 });
