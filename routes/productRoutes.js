@@ -7,13 +7,13 @@ const express = require('express');
 const router = express.Router();
 const productController = require('../controllers/productController');
 const adminAuth = require('../middleware/adminAuth');
-const auth = require('../middleware/auth');
+const { auth } = require('../middleware/auth'); // Destructuring para obtener solo auth
 
 /**
  * Route to get all products.
- * Requires authentication.
+ * No authentication required.
  */
-router.get('/', auth, productController.getProducts); // Get all products
+router.get('/', productController.getProducts); // Get all products - SIN auth
 
 /**
  * Route to create a new product.
@@ -23,9 +23,9 @@ router.post('/', adminAuth, productController.createProduct); // Create a new pr
 
 /**
  * Route to get a product by ID.
- * Requires authentication.
+ * No authentication required.
  */
-router.get('/:id', auth, productController.getProductById); // Get product by ID
+router.get('/:id', productController.getProductById); // Get product by ID - SIN auth
 
 /**
  * Route to update a product by ID.

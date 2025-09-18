@@ -1,5 +1,6 @@
 const adminAuth = (req, res, next) => {
   try {
+    console.log('User in adminAuth:', req.user);
     if (!req.user || req.user.role !== 'admin') {
       return res.status(403).json({ 
         success: false,
