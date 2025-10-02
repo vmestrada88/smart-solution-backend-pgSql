@@ -1,30 +1,30 @@
 /**
- * Script para sincronizar el modelo Sequelize con la base de datos PostgreSQL.
- * Crea las tablas y agrega datos de ejemplo.
- * Ejecutar este script para inicializar la base de datos en desarrollo.
+ * Script to synchronize the Sequelize model with the PostgreSQL database.
+ * Creates tables and adds sample data.
+ * Run this script to initialize the database in development.
  */
 
 const { sequelize } = require('./models');
 
 (async () => {
   try {
-    console.log('🔌 Conectando a Aurora RDS...');
+    console.log('🔌 Connecting to Aurora RDS...');
     await sequelize.authenticate();
-    console.log('✅ Conectado exitosamente');
+    console.log('✅ Connected successfully');
     
-    console.log('🏗️ Creando tablas con Sequelize...');
+    console.log('🏗️ Creating tables with Sequelize...');
     await sequelize.sync({ force: true });
-    console.log('✅ Tablas creadas');
+    console.log('✅ Tables created');
     
-    // Verificar tablas creadas
-    const [tables] = await sequelize.query("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'");
-    console.log('📋 Tablas creadas:', tables.map(t => t.table_name));
+    // Check created tables
+    const [tables] = await sequelize.query("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"); // eslint-disable-line quotes
+    console.log('📋 Created tables:', tables.map(t => t.table_name));
     
-    // Ahora vamos a insertar datos de ejemplo
+    // Now insert sample data
     const Product = require('./models/Product');
     
-    console.log('📦 Creando productos de ejemplo...');
-    const productos = await Product.bulkCreate([
+    console.log('📦 Creating sample products...');
+    const products = await Product.bulkCreate([
       {
         name: 'IP Camera Hikvision',
         brand: 'Hikvision',
@@ -36,7 +36,7 @@ const { sequelize } = require('./models');
         category: 'IP Camera'
       },
       {
-        name: 'NVR 4 Canales',
+        name: 'NVR 4 Channels',
         brand: 'Hikvision',
         model: 'DS-7104NI-Q1/M',
         description: 'Network Video Recorder 4CH',
@@ -57,8 +57,8 @@ const { sequelize } = require('./models');
       }
     ]);
     
-    console.log(`✅ Creados ${productos.length} productos de ejemplo`);
-    console.log('🎉 Base de datos configurada exitosamente');
+    console.log(`✅ Created ${products.length} sample products`);
+    console.log('🎉 Database configured successfully');
     
   } catch (error) {
     console.error('❌ Error:', error.message);

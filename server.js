@@ -4,7 +4,7 @@
  * Starts the server on the specified port.
  */
 
- /**
+/**
   * Determines the environment file to use based on the current Node.js environment.
   * If the environment is 'production', uses '.env.production'; otherwise, uses '.env'.
   *

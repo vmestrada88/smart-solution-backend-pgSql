@@ -88,13 +88,13 @@ ProposalItem.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
 Product.hasMany(ProposalItem, { foreignKey: 'productId', as: 'proposalItems' });
 
 // Hook para autogenerar número de propuesta y calcular totales
-Proposal.beforeCreate = async (proposal, options) => {
+Proposal.beforeCreate = async (proposal) => {
   if (!proposal.proposalNumber) {
     const count = await Proposal.count();
     proposal.proposalNumber = `PROP-${String(count + 1).padStart(6, '0')}`;
   }
 };
-Proposal.beforeSave = (proposal, options) => {
+Proposal.beforeSave = (proposal) => {
   if (proposal.items && Array.isArray(proposal.items)) {
     proposal.subtotal = proposal.items.reduce((sum, item) => sum + (item.subtotal || 0), 0);
     proposal.total = proposal.subtotal + (proposal.tax || 0);
