@@ -1,9 +1,8 @@
 {
-  "name": "smart-solution-backend",
+  "name": "smart-ops-backend",
   "version": "0.0.1",
   "main": "server.js",
-  "type": "module",
-  "license": "MIT",
+  "type": "commonjs",
   "author": "Victor Estrada",
   "engines": {
     "node": ">=20.0.0"
@@ -13,7 +12,8 @@
     "dev": "nodemon server.js",
     "dev:remote": "nodemon server.js --remote",
     "start:remote": "node server.js --remote",
-    "sync": "node syncModels.js"    
+    "sync": "node syncModels.js",
+    "test": "jest"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
