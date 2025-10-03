@@ -1,4 +1,5 @@
 const { Client, Contact, Job } = require('../models');
+const auth = require('../middleware/auth'); // Verifica la ruta
 
 // Create new client (with contacts)
 const createClient = async (req, res) => {

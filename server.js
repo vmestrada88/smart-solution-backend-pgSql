@@ -57,9 +57,7 @@ const allowedOrigins = new Set([
   'http://localhost:5173',
   'http://localhost:5174'
 ].filter(Boolean));
-// const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
-// const FRONTEND_URLS = process.env.FRONTEND_URLS ? process.env.FRONTEND_URLS.split(',').map(s => s.trim()) : [];
-// const allowedOrigins = new Set([FRONTEND_URL, ...FRONTEND_URLS, 'http://localhost:5174', 'http://localhost:5173'].filter(Boolean));
+
 
 /**
  * Sets up CORS middleware to restrict access to allowed origins.
@@ -82,6 +80,7 @@ app.use('/api', require('./routes/auth'));
 app.use('/api/clients', require('./routes/clientsRoutes'));
 app.use('/api/invoices', require('./routes/invoiceRoutes'));
 app.use('/api/users', require('./routes/usersRoutes'));
+app.use('/api/jobs', require('./routes/jobRoutes'));
 
 /**
  * Health check endpoint (simple version - no DB dependency).
@@ -123,8 +122,12 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 /**
  * Starts the Express server and logs allowed origins.
  */
-app.listen(PORT, () => {
-  console.log(`Server listening on ${PORT}`);
-  console.log('Allowed origins:', Array.from(allowedOrigins).join(', '));
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Server listening on ${PORT}`);
+    console.log('Allowed origins:', Array.from(allowedOrigins).join(', '));
+  });
+}
+
+module.exports = app; // Exporta la aplicación para las pruebas
 
