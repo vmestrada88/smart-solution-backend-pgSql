@@ -10,6 +10,13 @@ const {
   NODE_ENV = 'development', // Cambiar default a development
 } = process.env;
 
+console.log('🔍 DB Config:', {
+  DB_HOST,
+  DB_NAME,
+  DB_USER,
+  NODE_ENV
+});
+
 const common = {
   dialect: 'postgres',
   logging: NODE_ENV === 'development' ? console.log : false,

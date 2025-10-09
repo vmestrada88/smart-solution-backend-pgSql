@@ -120,6 +120,49 @@ app.get('/api/health/db', async (req, res) => {
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 /**
+ * Database synchronization
+ * Creates tables based on Sequelize models if they don't exist
+ */
+sequelize.sync({ alter: false })
+  .then(() => {
+    console.log('✅ Database synchronized - tables ready');
+  })
+  .catch(err => {
+    console.error('❌ Error syncing database:', err);
+  });
+
+/**
+ * Debug endpoint to see database info and products
+ */
+app.get('/api/debug/db', async (req, res) => {
+  try {
+    const { Product } = require('./models');
+    
+    // Info de conexión
+    const dbInfo = await sequelize.query("SELECT current_database(), current_user");
+    
+    // Contar productos
+    const productCount = await Product.count();
+    
+    // Ver algunos productos
+    const products = await Product.findAll({ limit: 3 });
+    
+    return res.json({
+      connectionInfo: {
+        database: dbInfo[0][0]?.current_database,
+        user: dbInfo[0][0]?.current_user,
+        host: process.env.DB_HOST,
+        port: process.env.DB_PORT
+      },
+      productCount,
+      sampleProducts: products
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+/**
  * Starts the Express server and logs allowed origins.
  */
 if (require.main === module) {
