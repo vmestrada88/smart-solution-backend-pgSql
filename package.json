@@ -13,7 +13,8 @@
     "dev:remote": "nodemon server.js --remote",
     "start:remote": "node server.js --remote",
     "sync": "node syncModels.js",
-    "test": "jest"
+    "test": "jest",
+    "clean":" rm -rf node_modules/ && rm package-lock.json && npm install"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
