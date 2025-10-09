@@ -120,16 +120,63 @@ app.get('/api/health/db', async (req, res) => {
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 /**
- * Database synchronization
- * Creates tables based on Sequelize models if they don't exist
+ * Database synchronization and data seeding
+ * Creates tables and adds sample data if needed
  */
-sequelize.sync({ alter: false })
-  .then(() => {
+async function initializeDatabase() {
+  try {
+    await sequelize.sync({ alter: false });
     console.log('✅ Database synchronized - tables ready');
-  })
-  .catch(err => {
+    
+    // Verificar si hay productos y agregar datos si está vacía
+    const { Product } = require('./models');
+    const productCount = await Product.count();
+    
+    if (productCount === 0) {
+      console.log('⚠️ No products found, adding sample data...');
+      await Product.bulkCreate([
+        {
+          name: 'Compresor Industrial',
+          brand: 'CompAir',
+          model: 'L75RS',
+          description: 'Compresor de tornillo rotativo de alta eficiencia',
+          quantity: 5,
+          priceSell: 8500.00,
+          priceBuy: 6000.00,
+          category: 'Compresores'
+        },
+        {
+          name: 'Kit de Mantenimiento',
+          brand: 'TechParts',
+          model: 'MK-2023',
+          description: 'Kit completo para mantenimiento preventivo',
+          quantity: 15,
+          priceSell: 450.00,
+          priceBuy: 280.00,
+          category: 'Repuestos'
+        },
+        {
+          name: 'Válvula de Seguridad',
+          brand: 'SafeFlow',
+          model: 'VS-200',
+          description: 'Válvula de seguridad para sistemas neumáticos',
+          quantity: 8,
+          priceSell: 320.00,
+          priceBuy: 180.00,
+          category: 'Componentes'
+        }
+      ]);
+      console.log('✅ Sample products added successfully');
+    } else {
+      console.log(`📦 Found ${productCount} products in database`);
+    }
+  } catch (err) {
     console.error('❌ Error syncing database:', err);
-  });
+  }
+}
+
+// Llamar la función
+initializeDatabase();
 
 /**
  * Debug endpoint to see database info and products
