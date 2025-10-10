@@ -13,7 +13,8 @@ const {auth} = require('../middleware/auth');
  * Route to get all invoices.
  * Requires authentication.
  */
-router.get('/', auth, invoiceController.getAllInvoices); // Get all invoices
+router.get('/', invoiceController.getAllInvoices); // Get all invoices
+// router.get('/', auth, invoiceController.getAllInvoices); // Get all invoices
 
 /**
  * Route to create a new invoice.
@@ -25,7 +26,8 @@ router.post('/', adminAuth, invoiceController.createInvoice); // Create a new in
  * Route to get an invoice by ID.
  * Requires authentication.
  */
-router.get('/:id', auth, invoiceController.getInvoiceById); // Get invoice by ID
+router.get('/:id', invoiceController.getInvoiceById); // Get invoice by ID
+// router.get('/:id', auth, invoiceController.getInvoiceById); // Get invoice by ID
 
 /**
  * Route to update an invoice by ID.

@@ -125,7 +125,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 async function initializeDatabase() {
   try {
     await sequelize.sync({ alter: false });
-    console.log('✅ Database synchronized - tables ready');
+    
   } catch (err) {
     console.error('❌ Error syncing database:', err);
   }
