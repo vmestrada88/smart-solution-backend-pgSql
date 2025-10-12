@@ -13,8 +13,10 @@
     "dev:remote": "nodemon server.js --remote",
     "start:remote": "node server.js --remote",
     "sync": "node syncModels.js",
-    "test": "jest --coverage",
-    "clean": " rm -rf node_modules/ && rm package-lock.json && npm install"
+    "test": "jest --coverage --passWithNoTests",
+    "test:ci": "jest --coverage --watchAll=false --passWithNoTests",
+    "clean": "rm -rf node_modules/ && rm package-lock.json && npm install",
+    "prepare": "husky"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -31,8 +33,15 @@
     "sequelize": "^6.37.7"
   },
   "devDependencies": {
+    "husky": "^9.1.7",
     "jest": "^30.1.3",
+    "lint-staged": "^16.2.3",
     "supertest": "^7.1.4"
+  },
+  "lint-staged": {
+    "*.js": [
+      "npm run test:ci"
+    ]
   },
   "license": "MIT"
 }
