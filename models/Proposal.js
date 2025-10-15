@@ -34,8 +34,8 @@ Proposal.init({
     defaultValue: 0,
   },
   status: {
-    type: DataTypes.ENUM('creado', 'enviado', 'archivado', 'cancelado'),
-    defaultValue: 'creado',
+    type: DataTypes.ENUM('created', 'sent', 'archived', 'cancelled'),
+    defaultValue: 'created',
   },
   validUntil: DataTypes.DATE,
   notes: DataTypes.STRING,
@@ -87,7 +87,7 @@ ProposalItem.belongsTo(Proposal, { foreignKey: 'proposalId', as: 'proposal' });
 ProposalItem.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
 Product.hasMany(ProposalItem, { foreignKey: 'productId', as: 'proposalItems' });
 
-// Hook para autogenerar número de propuesta y calcular totales
+// Hook to auto-generate proposal number and calculate totals
 Proposal.beforeCreate = async (proposal) => {
   if (!proposal.proposalNumber) {
     const count = await Proposal.count();

@@ -1,4 +1,4 @@
-// smart-ops-backend/jest.config.js
+
 module.exports = {
   testEnvironment: 'node',
   collectCoverageFrom: [

@@ -12,7 +12,6 @@
     "dev": "nodemon server.js",
     "dev:remote": "nodemon server.js --remote",
     "start:remote": "node server.js --remote",
-    "sync": "node syncModels.js",
     "test": "jest --coverage --passWithNoTests",
     "test:ci": "jest --coverage --watchAll=false --passWithNoTests",
     "clean": "rm -rf node_modules/ && rm package-lock.json && npm install",
