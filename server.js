@@ -33,12 +33,17 @@ console.log(`🔧 Using config: ${envFile}`);
 console.log(`🏠 DB Host: ${process.env.DB_HOST}`);
 console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
 
+// 1. Basic imports
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const productRoutes = require('./routes/productRoutes');
 const sequelize = require('./models/db');
 
+// 2. Import auth middleware
+const { auth } = require('./middleware/auth');
+
+// 3. App configuration
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -131,7 +136,7 @@ async function initializeDatabase() {
   }
 }
 
-// Llamar la función
+// Call the function
 initializeDatabase();
 
 /**
@@ -141,13 +146,13 @@ app.get('/api/debug/db', async (req, res) => {
   try {
     const { Product } = require('./models');
     
-    // Info de conexión
+    // Connection info
     const dbInfo = await sequelize.query("SELECT current_database(), current_user");
     
-    // Contar productos
+    // Count products
     const productCount = await Product.count();
     
-    // Ver algunos productos
+    // Show some products
     const products = await Product.findAll({ limit: 3 });
     
     return res.json({
@@ -175,5 +180,14 @@ if (require.main === module) {
   });
 }
 
-module.exports = app; // Exporta la aplicación para las pruebas
+// 6. Protected routes (after importing auth)
+// app.get('/api/protected', auth, (req, res) => {
+//   res.json({
+//     success: true,
+//     message: 'Access granted',
+//     user: req.user
+//   });
+// });
+
+module.exports = app; // Export the app for testing
 

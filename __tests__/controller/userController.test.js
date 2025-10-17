@@ -1,8 +1,8 @@
 const request = require('supertest');
-const app = require('../server');
-const { User } = require('../models'); // Mock the User model
+const app = require('../../server');
+const { User } = require('../../models'); // Mock the User model
 // Mock the models
-jest.mock('../models', () => ({
+jest.mock('../../models', () => ({
   User: {   
     create: jest.fn(),
     findAll: jest.fn(),
@@ -12,8 +12,8 @@ jest.mock('../models', () => ({
     },
 }));
 // Mock authentication middlewares
-jest.mock('../middleware/auth', () => (req, res, next) => next()); // Simulate successful authentication
-jest.mock('../middleware/adminAuth', () => (req, res, next) => next()); // Simulate successful admin authentication
+jest.mock('../../middleware/auth', () => (req, res, next) => next()); // Simulate successful authentication
+jest.mock('../../middleware/adminAuth', () => (req, res, next) => next()); // Simulate successful admin authentication
 describe('User Controller', () => {
     beforeEach(() => {
         jest.clearAllMocks(); // Clear mocks before each test

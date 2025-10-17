@@ -1,13 +1,13 @@
 const request = require('supertest');
-const app = require('../server'); // Make sure your app is exported from server.js
-const Product = require('../models/Product'); // Mock the Product model
+const app = require('../../server'); // Make sure your app is exported from server.js
+const Product = require('../../models/Product'); // Mock the Product model
 
 // Mock the Product model
-jest.mock('../models/Product');
+jest.mock('../../models/Product');
 
 // Mock authentication middlewares
-jest.mock('../middleware/auth', () => (req, res, next) => next()); // Simulate successful authentication
-jest.mock('../middleware/adminAuth', () => (req, res, next) => next()); // Simulate successful admin authentication
+jest.mock('../../middleware/auth', () => (req, res, next) => next()); // Simulate successful authentication
+jest.mock('../../middleware/adminAuth', () => (req, res, next) => next()); // Simulate successful admin authentication
 
 describe('Product Controller', () => {
   beforeEach(() => {

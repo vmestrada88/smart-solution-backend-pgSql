@@ -1,12 +1,12 @@
 const request = require('supertest');
-const app = require('../server'); // Ajusta la ruta si es diferente
-const { Invoice } = require('../models');
+const app = require('../../server'); // Ajusta la ruta si es diferente
+const { Invoice } = require('../../models');
 
 // Mock middleware to bypass authentication
-jest.mock('../middleware/auth', () => jest.fn((req, res, next) => next()));
-jest.mock('../middleware/adminAuth', () => jest.fn((req, res, next) => next()));
+jest.mock('../../middleware/auth', () => jest.fn((req, res, next) => next()));
+jest.mock('../../middleware/adminAuth', () => jest.fn((req, res, next) => next()));
 
-jest.mock('../models', () => ({
+jest.mock('../../models', () => ({
   Invoice: {
     create: jest.fn(),
     findAll: jest.fn(),
