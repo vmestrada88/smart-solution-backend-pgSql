@@ -5,14 +5,16 @@ module.exports = {
     '**/*.{js,jsx}',
     '!**/node_modules/**',
     '!**/coverage/**',
-    '!jest.config.js'
+    '!jest.config.js',
+    '!server.js',
+    '!model/db.js'
   ],
   coverageThreshold: {
     global: {
-      branches: 70,
-      functions: 70,
-      lines: 70,
-      statements: 70
+      branches: 91,
+      functions: 91,
+      lines: 91,
+      statements: 91
     }
   }
 };
