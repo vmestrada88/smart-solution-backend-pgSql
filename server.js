@@ -60,7 +60,9 @@ const allowedOrigins = new Set([
   ...FRONTEND_URLS,
   DEFAULT_PROD_FRONTEND,
   'http://localhost:5173',
-  'http://localhost:5174'
+  'http://localhost:5174',
+  'http://0.0.0.0:5173',
+  'http://0.0.0.0:5174'
 ].filter(Boolean));
 
 
