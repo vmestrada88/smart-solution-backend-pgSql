@@ -38,8 +38,8 @@ const common = {
     statement_timeout: 15000,                    // 15s por query
     idle_in_transaction_session_timeout: 0,      // sin timeout por transacción ociosa
     connectTimeout: 60000,                       // 60s para conectar
-    // En producción, RDS suele requerir SSL
-    ssl: NODE_ENV === 'production' ? { require: true, rejectUnauthorized: false } : false,
+    // SSL solo cuando DB_SSL no es explícitamente 'false'
+    ssl: process.env.DB_SSL === 'false' ? false : (NODE_ENV === 'production' ? { require: true, rejectUnauthorized: false } : false),
     // Alternativa universal para forzar el statement_timeout:
     options: '-c statement_timeout=15000'
   },
