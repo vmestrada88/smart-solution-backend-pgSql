@@ -57,6 +57,31 @@ const getClientById = async (req, res) => {
   }
 };
 
+// Get client by contact email
+const getClientByContactEmail = async (req, res) => {
+  const { email } = req.params;
+  try {
+    // Primero, buscar el contacto por email
+    const contact = await Contact.findOne({ where: { email } });
+    if (!contact) {
+      return res.status(404).json({ message: 'Contact not found for this email' });
+    }
+    // Luego, obtener el cliente usando el clientId del contacto
+    const client = await Client.findByPk(contact.clientId, {
+      include: [
+        { model: Contact, as: 'contacts' },
+        { model: Job, as: 'jobs' },
+      ],
+    });
+    if (!client) {
+      return res.status(404).json({ message: 'Client not found' });
+    }
+    res.status(200).json(client);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // Update client and contacts
 const updateClient = async (req, res) => {
   try {
@@ -116,6 +141,7 @@ module.exports = {
   createClient,
   getClients,
   getClientById,
+  getClientByContactEmail,
   updateClient,
   addJobToClient,
 };
