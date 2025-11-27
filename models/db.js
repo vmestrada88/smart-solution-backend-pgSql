@@ -7,6 +7,7 @@ const {
   DB_PASSWORD = 'admin123',
   DB_HOST = 'localhost',
   DB_PORT = '5432',
+  DB_SSL = 'false', // Add DB_SSL with default 'false'
   NODE_ENV = 'development', // Cambiar default a development
 } = process.env;
 
@@ -14,7 +15,8 @@ console.log('🔍 DB Config:', {
   DB_HOST,
   DB_NAME,
   DB_USER,
-  NODE_ENV
+  NODE_ENV,
+  DB_SSL // Add to log
 });
 
 const common = {
@@ -38,8 +40,8 @@ const common = {
     statement_timeout: 15000,                    // 15s por query
     idle_in_transaction_session_timeout: 0,      // sin timeout por transacción ociosa
     connectTimeout: 60000,                       // 60s para conectar
-    // En producción, RDS suele requerir SSL
-    ssl: NODE_ENV === 'production' ? { require: true, rejectUnauthorized: false } : false,
+    // Use DB_SSL to control SSL, default to false if not set
+    ssl: DB_SSL === 'true' ? { require: true, rejectUnauthorized: false } : false,
     // Alternativa universal para forzar el statement_timeout:
     options: '-c statement_timeout=15000'
   },
