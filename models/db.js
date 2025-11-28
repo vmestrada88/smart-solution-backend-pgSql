@@ -21,7 +21,7 @@ console.log('🔍 DB Config:', {
 
 console.log('🔍 DATABASE_URL:', DATABASE_URL);
 
-console.log('=== db.js loaded ===');
+console.log('=== db.js loaded ==********');
 
 // Define the common config object, including SSL handling
 const common = {
