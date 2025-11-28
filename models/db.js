@@ -7,8 +7,8 @@ const {
   DB_PASSWORD = 'admin123',
   DB_HOST = 'localhost',
   DB_PORT = '5432',
-  DB_SSL = 'false', // Add DB_SSL with default 'false'
-  NODE_ENV = 'development', // Cambiar default a development
+  DB_SSL = 'false',
+  NODE_ENV = 'development',
 } = process.env;
 
 console.log('🔍 DB Config:', {
@@ -19,8 +19,23 @@ console.log('🔍 DB Config:', {
   DB_SSL
 });
 
-// Nuevo log para verificar si DATABASE_URL está definido
 console.log('🔍 DATABASE_URL:', DATABASE_URL);
+
+// Define the common config object, including SSL handling
+const common = {
+  dialect: 'postgres',
+  dialectOptions: {},
+  logging: false,
+};
+
+if (DB_SSL === 'true') {
+  common.dialectOptions.ssl = {
+    require: true,
+    rejectUnauthorized: false,
+  };
+} else {
+  common.dialectOptions.ssl = false;
+}
 
 let sequelize;
 
