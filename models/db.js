@@ -39,6 +39,9 @@ if (DB_SSL === 'true') {
   common.dialectOptions.ssl = false;
 }
 
+console.log('🔍 DB_SSL value:', DB_SSL, '| typeof:', typeof DB_SSL);
+console.log('🔍 Sequelize ssl config:', common.dialectOptions.ssl);
+
 let sequelize;
 
 if (DATABASE_URL) {
