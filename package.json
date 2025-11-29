@@ -15,7 +15,7 @@
     "test": "jest --coverage --passWithNoTests",
     "test:ci": "jest --coverage --watchAll=false --passWithNoTests",
     "clean": "rm -rf node_modules/ && rm package-lock.json && npm install",
-    "prepare": "husky"
+    "prepare": "if [ \"$NODE_ENV\" != \"production\" ]; then husky install; fi"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
