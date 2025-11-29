@@ -34,8 +34,8 @@ Proposal.init({
     defaultValue: 0,
   },
   status: {
-    type: DataTypes.ENUM('creado', 'enviado', 'archivado', 'cancelado'),
-    defaultValue: 'creado',
+    type: DataTypes.ENUM('created', 'sent', 'archived', 'cancelled'),
+    defaultValue: 'created',
   },
   validUntil: DataTypes.DATE,
   notes: DataTypes.STRING,
@@ -87,14 +87,14 @@ ProposalItem.belongsTo(Proposal, { foreignKey: 'proposalId', as: 'proposal' });
 ProposalItem.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
 Product.hasMany(ProposalItem, { foreignKey: 'productId', as: 'proposalItems' });
 
-// Hook para autogenerar número de propuesta y calcular totales
-Proposal.beforeCreate = async (proposal, options) => {
+// Hook to auto-generate proposal number and calculate totals
+Proposal.beforeCreate = async (proposal) => {
   if (!proposal.proposalNumber) {
     const count = await Proposal.count();
     proposal.proposalNumber = `PROP-${String(count + 1).padStart(6, '0')}`;
   }
 };
-Proposal.beforeSave = (proposal, options) => {
+Proposal.beforeSave = (proposal) => {
   if (proposal.items && Array.isArray(proposal.items)) {
     proposal.subtotal = proposal.items.reduce((sum, item) => sum + (item.subtotal || 0), 0);
     proposal.total = proposal.subtotal + (proposal.tax || 0);

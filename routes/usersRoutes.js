@@ -25,7 +25,8 @@ router.post('/', adminAuth, userController.createUser); // Create a new user
  * Route to get a user by ID.
  * Requires authentication.
  */
-router.get('/:id', auth, userController.getUserById); // Get user by ID
+router.get('/:id', userController.getUserById); // Get user by ID
+// router.get('/:id', auth, userController.getUserById); // Get user by ID
 
 /**
  * Route to update a user by ID.

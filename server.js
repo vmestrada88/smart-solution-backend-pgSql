@@ -4,7 +4,7 @@
  * Starts the server on the specified port.
  */
 
- /**
+/**
   * Determines the environment file to use based on the current Node.js environment.
   * If the environment is 'production', uses '.env.production'; otherwise, uses '.env'.
   *
@@ -33,12 +33,17 @@ console.log(`🔧 Using config: ${envFile}`);
 console.log(`🏠 DB Host: ${process.env.DB_HOST}`);
 console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
 
+// 1. Basic imports
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const productRoutes = require('./routes/productRoutes');
 const sequelize = require('./models/db');
 
+// 2. Import auth middleware
+const { auth } = require('./middleware/auth');
+
+// 3. App configuration
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -55,7 +60,9 @@ const allowedOrigins = new Set([
   ...FRONTEND_URLS,
   DEFAULT_PROD_FRONTEND,
   'http://localhost:5173',
-  'http://localhost:5174'
+  'http://localhost:5174',
+  'http://0.0.0.0:5173',
+  'http://0.0.0.0:5174'
 ].filter(Boolean));
 
 
@@ -120,6 +127,52 @@ app.get('/api/health/db', async (req, res) => {
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 /**
+ * Database synchronization - only creates tables, no sample data
+ */
+async function initializeDatabase() {
+  try {
+    await sequelize.sync({ alter: false });
+    
+  } catch (err) {
+    console.error('❌ Error syncing database:', err);
+  }
+}
+
+// Call the function
+initializeDatabase();
+
+/**
+ * Debug endpoint to see database info and products
+ */
+app.get('/api/debug/db', async (req, res) => {
+  try {
+    const { Product } = require('./models');
+    
+    // Connection info
+    const dbInfo = await sequelize.query("SELECT current_database(), current_user");
+    
+    // Count products
+    const productCount = await Product.count();
+    
+    // Show some products
+    const products = await Product.findAll({ limit: 3 });
+    
+    return res.json({
+      connectionInfo: {
+        database: dbInfo[0][0]?.current_database,
+        user: dbInfo[0][0]?.current_user,
+        host: process.env.DB_HOST,
+        port: process.env.DB_PORT
+      },
+      productCount,
+      sampleProducts: products
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+/**
  * Starts the Express server and logs allowed origins.
  */
 if (require.main === module) {
@@ -129,5 +182,14 @@ if (require.main === module) {
   });
 }
 
-module.exports = app; // Exporta la aplicación para las pruebas
+// 6. Protected routes (after importing auth)
+// app.get('/api/protected', auth, (req, res) => {
+//   res.json({
+//     success: true,
+//     message: 'Access granted',
+//     user: req.user
+//   });
+// });
+
+module.exports = app; // Export the app for testing
 
