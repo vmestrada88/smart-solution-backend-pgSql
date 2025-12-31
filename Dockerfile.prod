@@ -1,0 +1,25 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copiar archivos de dependencias
+COPY package*.json ./
+
+# Instalar solo dependencias de producción
+RUN npm ci --only=production
+
+# Copiar el código fuente
+COPY . .
+
+# Crear directorio para uploads
+RUN mkdir -p uploads
+
+# Exponer el puerto
+EXPOSE 5000
+
+# Variables de entorno por defecto (se sobrescriben en Koyeb)
+ENV NODE_ENV=production
+ENV PORT=5000
+
+# Comando de inicio
+CMD ["npm", "start"]
