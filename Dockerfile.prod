@@ -1,25 +1,71 @@
+# ================================================================
+# Multi-stage Dockerfile optimizado para producción en AWS
+# ================================================================
+
+# ================================================================
+# Etapa 1: Builder - Instalar dependencias
+# ================================================================
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Instalar dependencias del sistema necesarias
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    postgresql-client
+
+# Copiar package files
+COPY package*.json ./
+
+# Instalar TODAS las dependencias (incluyendo devDependencies para build si es necesario)
+RUN npm ci --ignore-scripts
+
+# Copiar código fuente
+COPY . .
+
+# ================================================================
+# Etapa 2: Production - Runtime optimizado
+# ================================================================
 FROM node:20-alpine
 
 WORKDIR /app
 
-# Copiar archivos de dependencias
+# Instalar solo dependencias runtime necesarias
+RUN apk add --no-cache \
+    postgresql-client \
+    curl \
+    wget \
+    && rm -rf /var/cache/apk/*
+
+# Copiar package files
 COPY package*.json ./
 
-# Instalar solo dependencias de producción
-RUN npm ci --only=production
+# Instalar SOLO dependencias de producción
+RUN npm ci --only=production --ignore-scripts \
+    && npm cache clean --force
 
-# Copiar el código fuente
-COPY . .
+# Copiar código desde builder
+COPY --from=builder /app .
 
-# Crear directorio para uploads
-RUN mkdir -p uploads
+# Crear directorio para uploads con permisos correctos
+RUN mkdir -p uploads \
+    && chown -R node:node /app
 
-# Exponer el puerto
+# Cambiar a usuario no-root por seguridad
+USER node
+
+# Exponer puerto
 EXPOSE 5000
 
-# Variables de entorno por defecto (se sobrescriben en Koyeb)
-ENV NODE_ENV=production
-ENV PORT=5000
+# Variables de entorno por defecto
+ENV NODE_ENV=production \
+    PORT=5000
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD wget --quiet --tries=1 --spider http://localhost:5000/api/health || exit 1
 
 # Comando de inicio
-CMD ["npm", "start"]
+CMD ["node", "server.js"]

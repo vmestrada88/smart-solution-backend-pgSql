@@ -34,7 +34,13 @@ exports.getProducts = async (req, res) => {
 
     // Maintain compatibility: return only the array; put count in headers
     res.set('X-Total-Count', String(result.count || 0));
-    res.json(result.rows);
+    // Map imageUrls -> image_url (first image) for frontend compatibility
+    const rows = (result.rows || []).map(r => {
+      const obj = r.toJSON ? r.toJSON() : r;
+      obj.image_url = (obj.imageUrls && obj.imageUrls.length) ? obj.imageUrls[0] : null;
+      return obj;
+    });
+    res.json(rows);
   } catch (err) {
     const status = err.message === 'Query timeout' ? 408 : 500;
     res.status(status).json({ error: 'Error fetching products', details: err.message });
