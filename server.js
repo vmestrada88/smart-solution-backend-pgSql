@@ -59,6 +59,7 @@ const allowedOrigins = new Set([
   FRONTEND_URL,
   ...FRONTEND_URLS,
   DEFAULT_PROD_FRONTEND,
+  'https://smartsolutionfl.com',
   'http://localhost:5173',
   'http://localhost:5174',
   'http://0.0.0.0:5173',

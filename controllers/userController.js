@@ -19,6 +19,16 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
+exports.getTechnicians = async (req, res) => {
+  try {
+    // include color for UI
+    const technicians = await User.findAll({ where: { role: 'technician' }, attributes: ['id', 'name', 'email', 'role', 'color'] });
+    res.json(technicians);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 exports.getUserById = async (req, res) => {
   try {
     const user = await User.findByPk(req.params.id);
