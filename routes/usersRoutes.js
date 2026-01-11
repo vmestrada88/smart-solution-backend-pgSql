@@ -14,6 +14,8 @@ const {auth} = require('../middleware/auth');
  * Requires admin authentication.
  */
 router.get('/', adminAuth, userController.getAllUsers); // Get all users
+// Public to authenticated users: list technicians
+router.get('/technicians', auth, userController.getTechnicians);
 
 /**
  * Route to create a new user.

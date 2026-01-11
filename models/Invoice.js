@@ -8,6 +8,10 @@ Invoice.init({
   laborHours: DataTypes.FLOAT,
   laborRate: DataTypes.FLOAT,
   taxRate: DataTypes.FLOAT,
+  taxExempt: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
   totalAmount: DataTypes.FLOAT,
   date: {
     type: DataTypes.DATE,
