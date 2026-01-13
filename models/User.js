@@ -26,6 +26,11 @@ User.init({
     type: DataTypes.ENUM('client', 'technician', 'manager', 'admin'),
     allowNull: false,
   },
+  // Optional display color for UI elements (hex string)
+  color: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   createdAt: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
