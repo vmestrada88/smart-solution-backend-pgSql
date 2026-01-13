@@ -28,7 +28,7 @@ const common = {
   dialect: 'postgres',
   logging: NODE_ENV === 'development' ? console.log : false,
 
-  // Pool conservador para producción (evita saturar conexiones)
+  // Pool conservador para App Runner -> RDS (evita saturar conexiones)
   pool: {
     max: 5,
     min: 1,
@@ -37,17 +37,15 @@ const common = {
     evict: 10000,    // limpia conexiones muertas cada 10s
   },
 
-  // Timeouts y keepalive a nivel de driver pg
+  // Timeouts y keepalive a nivel de driver pg (no cambia la BD)
   dialectOptions: {
     keepAlive: true,
     keepAliveInitialDelayMillis: 0,
+    // Node-postgres soporta estos flags; Sequelize los pasa al driver:
     statement_timeout: 15000,                    // 15s por query
     idle_in_transaction_session_timeout: 0,      // sin timeout por transacción ociosa
     connectTimeout: 60000,                       // 60s para conectar
-    // Configurar SSL dinámicamente
-    ssl: (typeof process.env.DB_SSL !== 'undefined')
-      ? (process.env.DB_SSL === 'true' || process.env.DB_SSL === '1' ? { require: true, rejectUnauthorized: false } : false)
-      : (NODE_ENV === 'production' ? { require: true, rejectUnauthorized: false } : false),
+    // Alternativa universal para forzar el statement_timeout:
     options: '-c statement_timeout=15000'
   },
 
@@ -62,6 +60,19 @@ const common = {
     ],
   },
 };
+
+// Determine SSL behavior: env var takes precedence (supports 'true' or '1'),
+// otherwise default to enforcing SSL in production only.
+if (typeof process.env.DB_SSL !== 'undefined') {
+  const val = String(process.env.DB_SSL).toLowerCase();
+  if (val === 'true' || val === '1') {
+    common.dialectOptions.ssl = { require: true, rejectUnauthorized: false };
+  } else {
+    common.dialectOptions.ssl = false;
+  }
+} else {
+  common.dialectOptions.ssl = NODE_ENV === 'production' ? { require: true, rejectUnauthorized: false } : false;
+}
 
 console.log('🔍 DB_SSL value:', DB_SSL, '| typeof:', typeof DB_SSL);
 console.log('🔍 Sequelize ssl config:', common.dialectOptions.ssl);
