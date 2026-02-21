@@ -26,7 +26,9 @@ const envMap = {
   staging: '.env.staging'
 };
 const envFile = envMap[process.env.NODE_ENV] || '.env.development';
-require('dotenv').config({ path: envFile });
+const envPath = require('path').resolve(__dirname, envFile);
+require('dotenv').config({ path: envPath });
+console.log('Loaded env file:', envPath);
 
 console.log(`🔧 Mode: ${process.env.NODE_ENV === 'production' ? 'REMOTE (RDS)' : 'LOCAL'}`);
 console.log(`🔧 Using config: ${envFile}`);
@@ -141,6 +143,13 @@ async function initializeDatabase() {
 
 // Call the function
 initializeDatabase();
+
+/**
+ * Sync Sequelize models with the database (non-destructive)
+ */
+sequelize.sync({ alter: false })
+  .then(() => console.log('✅ Database synchronized'))
+  .catch((error) => console.error('❌ Error synchronizing database:', error));
 
 /**
  * Debug endpoint to see database info and products
