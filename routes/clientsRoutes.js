@@ -31,6 +31,11 @@ router.post('/',  clientController.createClient); // Create a new client without
 router.get('/:id', clientController.getClientById); // Get client by ID without auth
 
 /**
+ * Route to get a client by contact email.
+ */
+router.get('/by-email/:email', clientController.getClientByContactEmail);
+
+/**
  * Route to update a client by ID.
  * Requires admin authentication.
  */
