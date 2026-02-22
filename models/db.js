@@ -7,9 +7,23 @@ const {
   DB_PASSWORD = 'admin123',
   DB_HOST = 'localhost',
   DB_PORT = '5432',
-  NODE_ENV = 'development', // Cambiar default a development
+  DB_SSL = 'false',
+  NODE_ENV = 'development',
 } = process.env;
 
+console.log('🔍 DB Config:', {
+  DB_HOST,
+  DB_NAME,
+  DB_USER,
+  NODE_ENV,
+  DB_SSL
+});
+
+console.log('🔍 DATABASE_URL:', DATABASE_URL);
+
+console.log('=== db.js loaded ==********');
+
+// Define the common config object, including SSL handling
 const common = {
   dialect: 'postgres',
   logging: NODE_ENV === 'development' ? console.log : false,
@@ -31,8 +45,6 @@ const common = {
     statement_timeout: 15000,                    // 15s por query
     idle_in_transaction_session_timeout: 0,      // sin timeout por transacción ociosa
     connectTimeout: 60000,                       // 60s para conectar
-    // En producción, RDS suele requerir SSL
-    ssl: NODE_ENV === 'production' ? { require: true, rejectUnauthorized: false } : false,
     // Alternativa universal para forzar el statement_timeout:
     options: '-c statement_timeout=15000'
   },
@@ -49,11 +61,29 @@ const common = {
   },
 };
 
+// Determine SSL behavior: env var takes precedence (supports 'true' or '1'),
+// otherwise default to enforcing SSL in production only.
+if (typeof process.env.DB_SSL !== 'undefined') {
+  const val = String(process.env.DB_SSL).toLowerCase();
+  if (val === 'true' || val === '1') {
+    common.dialectOptions.ssl = { require: true, rejectUnauthorized: false };
+  } else {
+    common.dialectOptions.ssl = false;
+  }
+} else {
+  common.dialectOptions.ssl = NODE_ENV === 'production' ? { require: true, rejectUnauthorized: false } : false;
+}
+
+console.log('🔍 DB_SSL value:', DB_SSL, '| typeof:', typeof DB_SSL);
+console.log('🔍 Sequelize ssl config:', common.dialectOptions.ssl);
+
 let sequelize;
 
 if (DATABASE_URL) {
+  console.log('🔍 Usando DATABASE_URL para la conexión');
   sequelize = new Sequelize(DATABASE_URL, common);
 } else {
+  console.log('🔍 Usando parámetros individuales para la conexión');
   sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
     host: DB_HOST,
     port: DB_PORT,

@@ -2,10 +2,20 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('./db');
 
 const Job = sequelize.define('Job', {
+  // Task scheduling window
   date: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
+  startTime: {
     type: DataTypes.DATE,
     allowNull: false,
   },
+  endTime: {
+    type: DataTypes.DATE,
+    allowNull: false,
+  },
+  // Task details
   description: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -22,6 +32,21 @@ const Job = sequelize.define('Job', {
   invoiceId: {
     type: DataTypes.INTEGER,
     allowNull: true,
+  },
+  // Links
+  clientId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  assignedTo: {
+    // Support multiple assigned technicians
+    type: DataTypes.ARRAY(DataTypes.INTEGER),
+    allowNull: true,
+  },
+  status: {
+    type: DataTypes.ENUM('scheduled','in_progress','done','cancelled'),
+    allowNull: false,
+    defaultValue: 'scheduled',
   },
 }, {
   timestamps: false,

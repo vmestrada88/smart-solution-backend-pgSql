@@ -1,35 +1,73 @@
-/**
- * Order model definition using Sequelize ORM.
- * Represents an order entity with client and status information.
- * @module models/Order
- */
+const { DataTypes, Model } = require('sequelize');
+const sequelize = require('./db');
 
-const { DataTypes } = require('sequelize'); // Import Sequelize data types
-const sequelize = require('./db'); // Import the Sequelize instance
+class Order extends Model {}
+class OrderItem extends Model {}
 
-/**
- * Defines the Order model schema.
- * @typedef {Object} Order
- * @property {number} clientId - The ID of the client who placed the order (required).
- * @property {string} status - The current status of the order (required).
- * @property {Date} createdAt - The date when the order was created (default: now).
- */
-const Order = sequelize.define('Order', {
-  clientId: {
+Order.init({
+  id: {
     type: DataTypes.INTEGER,
-    allowNull: false, // Client ID is required
+    autoIncrement: true,
+    primaryKey: true,
+  },
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  totalAmount: {
+    type: DataTypes.FLOAT,
+    allowNull: false,
+    defaultValue: 0,
+  },
+  shippingAddress: {
+    type: DataTypes.JSONB,
+    allowNull: true,
+  },
+  paymentIntentId: {
+    type: DataTypes.STRING,
+    allowNull: true,
   },
   status: {
     type: DataTypes.STRING,
-    allowNull: false, // Status is required
-  },
-  createdAt: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW, // Automatically set to current date/time
+    allowNull: false,
+    defaultValue: 'pending',
   },
 }, {
-  timestamps: false, // Disable automatic timestamp fields (createdAt, updatedAt)
+  sequelize,
+  modelName: 'Order',
+  tableName: 'Orders',
+  timestamps: true,
 });
 
-// Export the Order model for use in other modules
-module.exports = Order;
+OrderItem.init({
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
+  orderId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  productId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  quantity: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 1,
+  },
+  price: {
+    type: DataTypes.FLOAT,
+    allowNull: false,
+    defaultValue: 0,
+  },
+}, {
+  sequelize,
+  modelName: 'OrderItem',
+  tableName: 'OrderItems',
+  timestamps: true,
+});
+
+module.exports = { Order, OrderItem };
