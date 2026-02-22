@@ -62,6 +62,7 @@ const allowedOrigins = new Set([
   ...FRONTEND_URLS,
   DEFAULT_PROD_FRONTEND,
   'https://smartsolutionfl.com',
+  'https://www.smartsolutionfl.com',
   'http://localhost:5173',
   'http://localhost:5174',
   'http://0.0.0.0:5173',
@@ -76,9 +77,14 @@ app.use(cors({
   origin: (origin, cb) => {
     // Allow non-browser requests (no origin) and any whitelisted origin
     if (!origin || allowedOrigins.has(origin)) return cb(null, true);
+    console.log('⚠️  CORS blocked origin:', origin);
     return cb(new Error('CORS: Origin not allowed: ' + origin));
   },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  maxAge: 86400 // 24 hours
 }));
 app.use(express.json());
 
