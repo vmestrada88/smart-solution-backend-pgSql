@@ -97,6 +97,8 @@ app.use('/api/clients', require('./routes/clientsRoutes'));
 app.use('/api/invoices', require('./routes/invoiceRoutes'));
 app.use('/api/users', require('./routes/usersRoutes'));
 app.use('/api/jobs', require('./routes/jobRoutes'));
+app.use('/api/cart', require('./routes/cartRoutes'));
+app.use('/api/orders', require('./routes/orderRoutes'));
 
 /**
  * Health check endpoint (simple version - no DB dependency).
@@ -149,13 +151,6 @@ async function initializeDatabase() {
 
 // Call the function
 initializeDatabase();
-
-/**
- * Sync Sequelize models with the database (non-destructive)
- */
-sequelize.sync({ alter: false })
-  .then(() => console.log('✅ Database synchronized'))
-  .catch((error) => console.error('❌ Error synchronizing database:', error));
 
 /**
  * Debug endpoint to see database info and products

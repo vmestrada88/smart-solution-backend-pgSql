@@ -81,7 +81,7 @@ const orderController = {
 
         // Update product stock
         const product = await Product.findByPk(item.productId, { transaction });
-        product.stock -= item.quantity;
+        product.quantity -= item.quantity;
         await product.save({ transaction });
       }
 
