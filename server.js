@@ -43,7 +43,7 @@ const productRoutes = require('./routes/productRoutes');
 const sequelize = require('./models/db');
 
 // 2. Import auth middleware
-const { auth } = require('./middleware/auth');
+const auth = require('./middleware/auth');
 
 // 3. App configuration
 const app = express();

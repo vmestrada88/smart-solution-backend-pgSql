@@ -7,7 +7,7 @@ const express = require('express');
 const router = express.Router();
 const productController = require('../controllers/productController');
 const adminAuth = require('../middleware/adminAuth');
-const { auth } = require('../middleware/auth'); // Destructuring para obtener solo auth
+const auth = require('../middleware/auth');
 
 /**
  * Route to get all products.
