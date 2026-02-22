@@ -7,7 +7,7 @@ const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
 const adminAuth = require('../middleware/adminAuth');
-const {auth} = require('../middleware/auth');
+const auth = require('../middleware/auth');
 
 /**
  * Route to get all users.

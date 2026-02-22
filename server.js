@@ -26,7 +26,9 @@ const envMap = {
   staging: '.env.staging'
 };
 const envFile = envMap[process.env.NODE_ENV] || '.env.development';
-require('dotenv').config({ path: envFile });
+const envPath = require('path').resolve(__dirname, envFile);
+require('dotenv').config({ path: envPath });
+console.log('Loaded env file:', envPath);
 
 console.log(`🔧 Mode: ${process.env.NODE_ENV === 'production' ? 'REMOTE (RDS)' : 'LOCAL'}`);
 console.log(`🔧 Using config: ${envFile}`);
@@ -41,7 +43,7 @@ const productRoutes = require('./routes/productRoutes');
 const sequelize = require('./models/db');
 
 // 2. Import auth middleware
-const { auth } = require('./middleware/auth');
+const auth = require('./middleware/auth');
 
 // 3. App configuration
 const app = express();
@@ -95,6 +97,8 @@ app.use('/api/clients', require('./routes/clientsRoutes'));
 app.use('/api/invoices', require('./routes/invoiceRoutes'));
 app.use('/api/users', require('./routes/usersRoutes'));
 app.use('/api/jobs', require('./routes/jobRoutes'));
+app.use('/api/cart', require('./routes/cartRoutes'));
+app.use('/api/orders', require('./routes/orderRoutes'));
 
 /**
  * Health check endpoint (simple version - no DB dependency).

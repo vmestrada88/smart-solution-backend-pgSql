@@ -21,7 +21,8 @@ router.get('/', async (req, res) => {
     }
     if (technicianId) where.assignedTo = technicianId;
 
-    let jobs = await Job.findAll({ where });
+    const hasFilters = Object.keys(where).length > 0;
+    let jobs = hasFilters ? await Job.findAll({ where }) : await Job.findAll();
 
     // Auto-mark past tasks as 'incomplete' if the end/start date has passed and status is still 'scheduled' or null
     const now = new Date();
@@ -32,7 +33,7 @@ router.get('/', async (req, res) => {
     if (toMark.length) {
       await Promise.all(toMark.map(j => Job.update({ status: 'incomplete' }, { where: { id: j.id } })));
       // re-fetch jobs after updates
-      jobs = await Job.findAll({ where });
+      jobs = hasFilters ? await Job.findAll({ where }) : await Job.findAll();
     }
 
     res.json(jobs);
