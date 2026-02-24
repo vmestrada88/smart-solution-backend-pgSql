@@ -67,11 +67,7 @@ router.post('/reset-password', async (req, res) => {
     const user = await User.findOne({ where: { email } });
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    // Hash la nueva contraseña
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
-
-    user.password = hashedPassword;
+    user.password = newPassword;
     await user.save();
 
     res.json({ message: 'Password updated successfully' });
