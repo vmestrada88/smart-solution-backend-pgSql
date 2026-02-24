@@ -1,0 +1,19 @@
+name: Production Source Guard
+
+on:
+  pull_request:
+    branches: [production]
+
+jobs:
+  allow-only-staging:
+    name: allow-only-staging
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate PR source branch
+        run: |
+          echo "PR source branch: ${{ github.head_ref }}"
+          if [ "${{ github.head_ref }}" != "staging" ]; then
+            echo "❌ Only PRs from 'staging' to 'production' are allowed."
+            exit 1
+          fi
+          echo "✅ Source branch is staging."
