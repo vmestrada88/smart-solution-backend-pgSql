@@ -472,7 +472,8 @@ const createPublicProposalRequest = async (req, res) => {
                 address: normalizedAddress,
                 city: '',
                 state: '',
-                zip: ''
+                zip: '',
+                status: 'prospect'
             }, { transaction });
         }
 

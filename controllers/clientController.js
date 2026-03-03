@@ -1,10 +1,17 @@
 const { Client, Contact, Job } = require('../models');
 const auth = require('../middleware/auth'); // Verifica la ruta
 
+const VALID_CLIENT_STATUSES = ['prospect', 'active', 'inactive'];
+
 // Create new client (with contacts)
 const createClient = async (req, res) => {
-  const { companyName, address, city, state, zip, contacts } = req.body;
+  const { companyName, address, city, state, zip, status, contacts } = req.body;
   try {
+    const normalizedStatus = status || 'active';
+    if (!VALID_CLIENT_STATUSES.includes(normalizedStatus)) {
+      return res.status(400).json({ message: 'Invalid client status' });
+    }
+
     const client = await Client.create(
       {
         companyName,
@@ -12,6 +19,7 @@ const createClient = async (req, res) => {
         city,
         state,
         zip,
+        status: normalizedStatus,
         contacts: contacts || [],
       },
       {
@@ -85,19 +93,25 @@ const getClientByContactEmail = async (req, res) => {
 // Update client and contacts
 const updateClient = async (req, res) => {
   try {
-    const { companyName, address, city, state, zip, contacts } = req.body;
+    const { companyName, address, city, state, zip, status, contacts } = req.body;
     const client = await Client.findByPk(req.params.id, {
       include: [{ model: Contact, as: 'contacts' }],
     });
     if (!client) {
       return res.status(404).json({ message: 'Client no found' });
     }
+
+    if (status && !VALID_CLIENT_STATUSES.includes(status)) {
+      return res.status(400).json({ message: 'Invalid client status' });
+    }
+
     await client.update({
       companyName: companyName ?? client.companyName,
       address: address ?? client.address,
       city: city ?? client.city,
       state: state ?? client.state,
       zip: zip ?? client.zip,
+      status: status ?? client.status,
     });
     // Si se envían contactos, actualizarlos (borrar y crear nuevos por simplicidad)
     if (contacts) {
@@ -131,6 +145,11 @@ const addJobToClient = async (req, res) => {
       invoiceId: invoiceId || null,
       clientId: client.id,
     });
+
+    if (client.status !== 'active') {
+      await client.update({ status: 'active' });
+    }
+
     res.status(201).json(job);
   } catch (error) {
     res.status(500).json({ message: error.message });
