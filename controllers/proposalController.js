@@ -17,8 +17,7 @@ const getAllProposals = async (req, res) => {
             include: [
                 {
                     model: Client,
-                    as: 'client',
-                    attributes: ['id', 'name', 'email', 'phone']
+                    as: 'client'
                 },
                 {
                     model: User,
@@ -32,7 +31,7 @@ const getAllProposals = async (req, res) => {
                         {
                             model: Product,
                             as: 'product',
-                            attributes: ['id', 'name', 'price']
+                            attributes: ['id', 'name', 'priceSell']
                         }
                     ]
                 }
@@ -372,8 +371,7 @@ const getProposalsByStatus = async (req, res) => {
             include: [
                 {
                     model: Client,
-                    as: 'client',
-                    attributes: ['id', 'name', 'email']
+                    as: 'client'
                 },
                 {
                     model: User,
@@ -430,6 +428,107 @@ const updateProposalStatus = async (req, res) => {
     }
 };
 
+/**
+ * Create proposal request from public products page.
+ * If client does not exist, create it.
+ */
+const createPublicProposalRequest = async (req, res) => {
+    const transaction = await Proposal.sequelize.transaction();
+
+    try {
+        const {
+            name,
+            contact,
+            address,
+            notes,
+            items = []
+        } = req.body;
+
+        if (!name || !String(name).trim()) {
+            await transaction.rollback();
+            return res.status(400).json({ error: 'Name is required' });
+        }
+
+        if (!Array.isArray(items) || items.length === 0) {
+            await transaction.rollback();
+            return res.status(400).json({ error: 'At least one item is required' });
+        }
+
+        const normalizedName = String(name).trim();
+        const normalizedAddress = String(address || '').trim() || 'Not provided';
+        const normalizedContact = String(contact || '').trim();
+
+        let client = await Client.findOne({
+            where: {
+                companyName: normalizedName,
+                address: normalizedAddress
+            },
+            transaction
+        });
+
+        if (!client) {
+            client = await Client.create({
+                companyName: normalizedName,
+                address: normalizedAddress,
+                city: '',
+                state: '',
+                zip: '',
+                status: 'prospect'
+            }, { transaction });
+        }
+
+        const isEmailContact = normalizedContact.includes('@');
+
+        const proposal = await Proposal.create({
+            clientId: client.id,
+            clientInfoName: normalizedName,
+            clientInfoEmail: isEmailContact ? normalizedContact : '',
+            clientInfoPhone: isEmailContact ? '' : normalizedContact,
+            clientInfoAddress: normalizedAddress,
+            tax: 0,
+            status: 'created',
+            notes: String(notes || '').trim()
+        }, { transaction });
+
+        const proposalItems = items.map((item) => {
+            const quantity = Number(item.quantity || 1);
+            const unitPrice = Number(item.unitPrice || 0);
+            const laborCost = Number(item.laborCost || 0);
+            const subtotal = (quantity * unitPrice) + (quantity * laborCost);
+
+            return {
+                proposalId: proposal.id,
+                productId: item.productId || null,
+                name: item.name || 'Item',
+                description: item.description || '',
+                quantity,
+                unitPrice,
+                laborCost,
+                subtotal
+            };
+        });
+
+        await ProposalItem.bulkCreate(proposalItems, { transaction });
+
+        const subtotal = proposalItems.reduce((sum, item) => sum + Number(item.subtotal || 0), 0);
+        const total = subtotal;
+
+        await proposal.update({ subtotal, total }, { transaction });
+
+        await transaction.commit();
+
+        return res.status(201).json({
+            message: 'Proposal request created successfully',
+            proposalId: proposal.id,
+            clientId: client.id
+        });
+    } catch (error) {
+        await transaction.rollback();
+        console.error('Error creating public proposal request:', error);
+        return res.status(500).json({ error: error.message });
+    }
+};
+
 module.exports = {
     getAllProposals,
     createProposal,
@@ -437,5 +536,6 @@ module.exports = {
     updateProposal,
     deleteProposal,
     getProposalsByStatus,
-    updateProposalStatus
+    updateProposalStatus,
+    createPublicProposalRequest
 };

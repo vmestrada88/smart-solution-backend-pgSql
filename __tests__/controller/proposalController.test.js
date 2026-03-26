@@ -95,8 +95,7 @@ describe('Proposal Controller - Complete Coverage', () => {
                 include: [
                     {
                         model: Client,
-                        as: 'client',
-                        attributes: ['id', 'name', 'email', 'phone']
+                        as: 'client'
                     },
                     {
                         model: User,
@@ -110,7 +109,7 @@ describe('Proposal Controller - Complete Coverage', () => {
                             {
                                 model: Product,
                                 as: 'product',
-                                attributes: ['id', 'name', 'price']
+                                attributes: ['id', 'name', 'priceSell']
                             }
                         ]
                     }
@@ -544,8 +543,7 @@ describe('Proposal Controller - Complete Coverage', () => {
                 include: [
                     {
                         model: Client,
-                        as: 'client',
-                        attributes: ['id', 'name', 'email']
+                        as: 'client'
                     },
                     {
                         model: User,
