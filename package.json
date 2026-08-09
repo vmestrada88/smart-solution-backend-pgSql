@@ -8,14 +8,14 @@
     "node": ">=20.0.0"
   },
   "scripts": {
+    "prepare": "husky",
     "start": "node server.js",
     "dev": "nodemon server.js",
     "dev:remote": "nodemon server.js --remote",
     "start:remote": "node server.js --remote",
     "test": "jest --coverage --passWithNoTests",
     "test:ci": "jest --coverage --watchAll=false --passWithNoTests",
-    "clean": "rm -rf node_modules/ && rm package-lock.json && npm install",
-    "prepare": "husky"
+    "clean": "rm -rf node_modules/ && rm package-lock.json && npm install"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -29,7 +29,8 @@
     "pg": "^8.16.3",
     "pg-hstore": "^2.3.4",
     "semver": "^7.7.3",
-    "sequelize": "^6.37.7"
+    "sequelize": "^6.37.7",
+    "stripe": "^20.1.2"
   },
   "devDependencies": {
     "debug": "^4.4.3",

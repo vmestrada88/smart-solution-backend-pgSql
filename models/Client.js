@@ -13,6 +13,11 @@ const Client = sequelize.define('Client', {
   city: DataTypes.STRING,
   state: DataTypes.STRING,
   zip: DataTypes.STRING,
+  status: {
+    type: DataTypes.ENUM('prospect', 'active', 'inactive'),
+    allowNull: false,
+    defaultValue: 'active',
+  },
   createdAt: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,

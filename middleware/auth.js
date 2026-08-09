@@ -11,7 +11,8 @@ const auth = (req, res, next) => {
     }
     
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const jwtSecret = process.env.JWT_SECRET || 'secreto';
+    const decoded = jwt.verify(token, jwtSecret);
     req.user = decoded;
     next();
   } catch (error) {
@@ -23,4 +24,5 @@ const auth = (req, res, next) => {
   }
 };
 
-module.exports = { auth };
+module.exports = auth;
+module.exports.auth = auth;

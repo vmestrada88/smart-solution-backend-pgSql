@@ -2,7 +2,10 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
+# Only copy production package.json
+COPY package.prod.json ./package.json
+COPY package-lock.json ./
+ENV NODE_ENV=production
 RUN npm ci --omit=dev
 
 COPY . .
